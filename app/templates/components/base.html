@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Operações de Crédito{% endblock %}</title>
+    
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.dataTables.min.css') }}">
+
+    <!-- Tailwind CSS -->
+    <script src="{{ url_for('static', filename='javascript/tailwindcss.js') }}"></script>
+
+    <!-- Flowbite -->
+    <script src="{{ url_for('static', filename='javascript/flowbite.min.js') }}"></script>
+
+    <!-- jQuery e DataTables -->
+    <script src="{{ url_for('static', filename='javascript/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='javascript/dataTables.net.min.js') }}"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
+    <script src="{{ url_for('static', filename='javascript/dataTables.buttons.min.js') }}"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Alpine.js -->
+    <script src="{{ url_for('static', filename='javascript/alpine.min.js') }}" defer></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='javascript/main.js') }}"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen bg-gray-100">
+    {% block content %}{% endblock %}
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

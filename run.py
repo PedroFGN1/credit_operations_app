@@ -14,7 +14,7 @@ def page_not_found(error):
 
 def run_flask():
     # roda o servidor Flask em thread separada
-    app.run(debug=False, port=1302)
+    app.run(debug=False, port=4000)
 
 if __name__ == "__main__":
     # inicia o Flask
@@ -25,11 +25,11 @@ if __name__ == "__main__":
     # espera o servidor subir antes de abrir a janela
     for _ in range(10):
         try:
-            requests.get("http://127.0.0.1:1302")
+            requests.get("http://127.0.0.1:4000")
             break
         except:
             time.sleep(0.5)
 
     # cria a janela desktop com PyWebView
-    webview.create_window("Meu App Desktop", "http://127.0.0.1:1302", resizable=True)
+    webview.create_window("Meu App Desktop", "http://127.0.0.1:4000", resizable=True)
     webview.start(http_server=True)

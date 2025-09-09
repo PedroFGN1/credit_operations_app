@@ -1,0 +1,39 @@
+<!-- Seção de Estoque -->
+<section class="hidden bg-white mt-8 rounded-xl border shadow-sm" id="styled-estoque" role="tabpanel" aria-labelledby="estoque-tab">
+    <div x-data="{ 
+        requisitado: {{ requisitado if requisitado else 0 }},
+        mostrarBarra: (localStorage.getItem('mostrarBarra') === 'true' && {{ requisitado if requisitado else 0 }} > 0) 
+        }" 
+        x-init="$watch('mostrarBarra', value => localStorage.setItem('mostrarBarra', value))" class="container px-6 py-6 mx-auto my-2">
+        
+        <div class="hidden items-center justify-center">
+            <a href="/"><button class="px-6 py-2 w-30 font-medium text-white capitalize transition-colors duration-300 transform bg-[#0056a0] rounded-lg hover:bg-white hover:border hover:border-[#0056a0] hover:text-[#0056a0] focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 cursor-pointer">Atualizar Operações</button></a>
+        </div>
+        
+        <h2 class="text-lg font-semibold text-[#0056a0] lg:text-2xl">
+            Regras de Estoque
+        </h2>
+
+        <!-- Quadros de Regras -->
+        <div class="grid grid-cols-1 gap-8 my-8 xl:gap-12 md:grid-cols-2">
+            
+            <!-- DCL -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="text-xl font-medium text-gray-700 hover:text-[#0056a0]">Dívida Consolidada Líquida de {{ano}}</h2>
+                <p class="mt-3 text-gray-600 hover:text-[#009e3c]">
+                    R$ {{ dcl_rgf | separador_milhar }}
+                </p>
+            </div>
+
+            <!-- RCL Ajustada  -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="text-xl font-medium text-gray-700 hover:text-[#0056a0]">Receita Corrente Líquida Ajustada de {{ano}}</h2>
+                <p class="mt-3 text-gray-600 hover:text-[#009e3c]">
+                    R$ {{ rcl_rgf | separador_milhar }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+

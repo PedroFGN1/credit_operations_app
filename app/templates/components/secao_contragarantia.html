@@ -1,0 +1,68 @@
+<!-- Seção de Contra-garantia -->
+<section class="hidden bg-white mt-8 rounded-xl border shadow-sm" id="styled-contragarantia" role="tabpanel" aria-labelledby="contragarantia-tab">
+    <!-- Seção de Regras de Contra-Garantia -->
+    <div class="container px-6 py-6 mx-auto">
+
+        <h2 class="text-lg font-semibold text-[#0056a0] lg:text-2xl">
+            Regras de Contra-Garantias
+        </h2>
+
+        <!-- Quadros de Regras -->
+        <div class="grid grid-cols-1 gap-8 my-8 xl:gap-12 md:grid-cols-2">
+            
+            <div class="flex justify-center items-center col-span-2">
+                <img src="https://www.in.gov.br/documents/68942/530584600/515%2B2023-12-14%2B21229670-1_MF_14_07.jpg/04632ffa-6b3e-62b5-a037-98ab8ae6562b" alt="Fórmula de Margem de Contra-Garantias" class="max-h-56">
+            </div>
+
+            <!-- RP -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="italic text-xl font-medium text-gray-700">RP</h2>
+                <p class="mt-3 text-gray-600">
+                    Corresponde ao somatório das receitas próprias dos Estados, do Distrito Federal e dos Municípios considerados no cálculo.
+                </p>
+            </div>
+
+            <!-- RT -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="italic text-xl font-medium text-gray-700">RT</h2>
+                <p class="mt-3 text-gray-600">
+                    Corresponde ao somatório das receitas constitucionais destinadas a Estados, Distrito Federal e Municípios considerados no cálculo.
+                </p>
+            </div>
+
+            <!-- DSD  -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="italic text-xl font-medium text-gray-700">DSD</h2>
+                <p class="mt-3 text-gray-600">
+                    Corresponde ao total de despesas com serviço da dívida.
+                </p>
+            </div>
+            
+            <!-- TCL  -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="italic text-xl font-medium text-gray-700">TCL</h2>
+                <p class="mt-3 text-gray-600">
+                    Corresponde ao total de despesas com transferências constitucionais e legais, no caso dos Estados.
+                </p>
+            </div>
+
+            <!-- Receitas Próprias  -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="capitalize text-xl font-medium text-gray-700 hover:text-[#0056a0]">somatório de receitas próprias de {{ano}}</h2>
+                <p class="mt-3 text-gray-600 hover:text-[#009e3c]">
+                   R$ {{ receitas_proprias | separador_milhar }}
+                </p>
+            </div>
+
+            <!--  -->
+            <div class="p-6 border rounded-xl hover:shadow-md border-gray-200 bg-gray-50">
+                <h2 class="capitalize text-xl font-medium text-gray-700 hover:text-[#0056a0]">despesas com serviço da dívida de {{ano}}</h2>
+                <p class="mt-3 text-gray-600 hover:text-[#009e3c]">
+                    R$ {{ dsd | separador_milhar }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+

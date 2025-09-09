@@ -311,7 +311,7 @@ def painel_operacoes_credito():
             .scalar() or 0)
         )
 
-    return render_template('/operacoes_credito.html', tabela=tabela, anos=anos, ano=ano, rcl=float(rcl), rcl_rgf=float(rcl_rgf), dcl_rgf=float(dcl_rgf), requisitado=float(requisitado), apuracao=apuracao, dados_barra=dados_barra, receitas_proprias=float(receitas_proprias), dsd=float(dsd))
+    return render_template('/operacoes_credito_refatorado.html', tabela=tabela, anos=anos, ano=ano, rcl=float(rcl), rcl_rgf=float(rcl_rgf), dcl_rgf=float(dcl_rgf), requisitado=float(requisitado), apuracao=apuracao, dados_barra=dados_barra, receitas_proprias=float(receitas_proprias), dsd=float(dsd))
 
 @operation_bp.route('/importar_operacoes', methods=['GET', 'POST'])
 def importar_operacoes():

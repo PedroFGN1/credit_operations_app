@@ -1,0 +1,95 @@
+<!-- Seção de Dados -->
+<section class="hidden bg-white shadow-lg rounded-lg p-6" id="styled-contacts" role="tabpanel" aria-labelledby="contacts-tab">
+    <div class="mb-4">
+        <a href="{{ url_for('operation_bp.atualizar_operacoes_rreo', status='now') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Atualizar Dados do Ano Atual
+        </a>
+        <a href="{{ url_for('operation_bp.atualizar_operacoes_rreo', status='past') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-700 ml-2">
+            Atualizar Dados Anteriores
+        </a>
+        <form id="formFiltroRREO" method="GET" class="mt-4">
+            <div class="px-auto flex flex-col items-start justify-center">
+                <label for="ano" class="block font-medium text-sm text-gray-500">Selecione o ano:</label>
+                <span class="absolute">
+                    <img src="https://img.icons8.com/?size=100&id=15640&format=png&color=000000" alt="money--v1" class="w-7 h-7 mt-6 mr-3 ml-2 text-gray-400"/>
+                </span>
+                <select id="anoSelectRREO" name="ano" class="mt-2 pl-11 block w-48 font-semibold placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white pr-3 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40" required>
+                    {% for ano_item in anos %}
+                        <option class="font-semibold"  value="{{ ano_item }}" {% if ano_item == ano %}selected{% endif %}>
+                            {{ ano_item }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>    
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Consulta de Operações</h2>
+        
+    <!-- Tabela Responsiva -->
+    <div class="overflow-x-auto">
+        <table id="tabelaOperacoes" class="w-full table-auto border-collapse border border-gray-300 text-sm text-gray-700">
+            <thead class="bg-blue-100">
+                <tr>
+                    <th class="border border-gray-400 px-4 py-2">ID</th>
+                    <th class="border border-gray-400 px-4 py-2">Ano</th>
+                    <th class="border border-gray-400 px-4 py-2">Bimestre</th>
+                    <th class="border border-gray-400 px-4 py-2">Anexo</th>
+                    <th class="border border-gray-400 px-4 py-2">Movimentação Contábil</th>
+                    <th class="border border-gray-400 px-4 py-2">Natureza</th>
+                    <th class="border border-gray-400 px-4 py-2">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dados serão carregados via AJAX -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="w-full max-w-3xl min-[400px]:max-w-7xl mx-auto my-12 border-b border-solid border-opacity-30 border-gray-400 rounded-lg"></div>
+
+    <div class="my-8">
+        <a href="{{ url_for('operation_bp.atualizar_operacoes_rgf', status='now') }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            Atualizar Dados do Ano Atual
+        </a>
+        <a href="{{ url_for('operation_bp.atualizar_operacoes_rgf', status='past') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-700 ml-2">
+            Atualizar Dados Anteriores
+        </a>
+        <form id="formFiltroRGF" method="GET" class="mt-4">
+            <div class="px-auto flex flex-col items-start justify-center">
+                <label for="ano" class="block font-medium text-sm text-gray-500">Selecione o ano:</label>
+                <span class="absolute">
+                    <img src="https://img.icons8.com/?size=100&id=15640&format=png&color=000000" alt="money--v1" class="w-7 h-7 mt-6 mr-3 ml-2 text-gray-400"/>
+                </span>
+                <select id="anoSelectRGF" name="ano" class="mt-2 pl-11 block w-48 font-semibold placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white pr-3 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40" required>
+                    {% for ano_item in anos %}
+                        <option class="font-semibold"  value="{{ ano_item }}" {% if ano_item == ano %}selected{% endif %}>
+                            {{ ano_item }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>    
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Consulta de RGF</h2>
+        
+    <!-- Tabela Responsiva -->
+    <div class="overflow-x-auto">
+        <table id="tabelaRGF" class="w-full table-auto border-collapse border border-gray-300 text-sm text-gray-700">
+            <thead class="bg-blue-100">
+                <tr>
+                    <th class="border border-gray-400 px-4 py-2">ID</th>
+                    <th class="border border-gray-400 px-4 py-2">Ano</th>
+                    <th class="border border-gray-400 px-4 py-2">Quadrimestre</th>
+                    <th class="border border-gray-400 px-4 py-2">Anexo</th>
+                    <th class="border border-gray-400 px-4 py-2">Movimentação Contábil</th>
+                    <th class="border border-gray-400 px-4 py-2">Natureza</th>
+                    <th class="border border-gray-400 px-4 py-2">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dados serão carregados via AJAX -->
+            </tbody>
+        </table>
+    </div>
+</section>
+

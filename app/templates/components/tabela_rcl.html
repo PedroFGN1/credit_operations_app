@@ -1,0 +1,24 @@
+<!-- Tabelas RCL -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
+
+    <!-- Tabela Valor Total RCL-->
+    <table class="w-full border border-gray-300 rounded-2xl text-sm font-normal text-slate-700">
+        <thead class="bg-blue-100">
+            <tr>
+                <th class="border border-gray-400 px-4 py-2 text-center font-bold">Valor RCL de {{ ano }}</th>
+                <th class="border border-gray-400 px-4 py-2 text-center font-semibold">R$ {{ rcl | separador_milhar  }}</th>
+            </tr>
+        </thead>
+    </table>
+    
+    <!-- Tabela Limite de 16% da RCL -->
+    <table class="w-full border-collapse border rounded-xl border-gray-300 text-sm text-gray-700">
+        <thead class="bg-green-100 ">
+            <tr>
+                <th class="border border-gray-400 px-4 py-2 text-center">Limite de 16% da RCL de {{ ano }}</th>
+                <th class="border border-gray-400 px-4 py-2 text-center font-semibold">R$ {{ ( rcl*0.16 ) | separador_milhar}}</th>
+            </tr>
+        </thead>
+    </table> 
+</div>
+

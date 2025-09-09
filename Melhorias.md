@@ -1,0 +1,1 @@
+- Fazer rota para listar os anos disponíveis na base de dados e popular o select dinamicamente.

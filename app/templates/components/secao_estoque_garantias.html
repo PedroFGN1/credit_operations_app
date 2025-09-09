@@ -1,0 +1,90 @@
+<section class="hidden bg-white mt-8 rounded-xl border shadow-sm" id="styled-estoque-garantia" role="tabpanel" aria-labelledby="estoque-garantia-tab">
+    <div x-data="{ 
+        requisitado: {{ requisitado if requisitado else 0 }},
+        mostrarBarra: (localStorage.getItem('mostrarBarra') === 'true' && {{ requisitado if requisitado else 0 }} > 0) 
+        }" 
+        x-init="$watch('mostrarBarra', value => localStorage.setItem('mostrarBarra', value))" class="container px-6 py-6 mx-auto my-2">
+        
+        <div class="hidden items-center justify-center">
+            <a href="/"><button class="px-6 py-2 w-30 font-medium text-white capitalize transition-colors duration-300 transform bg-[#0056a0] rounded-lg hover:bg-white hover:border hover:border-[#0056a0] hover:text-[#0056a0] focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 cursor-pointer">Atualizar Operações</button></a>
+        </div>
+        
+        <!-- Formulário de Simulação -->
+        <form action="{{ url_for('operation_bp.operacoes_de_credito') }}" method="GET" class="flex flex-col justify-start sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6" onsubmit="prepareForm()">
+            
+            <!-- Seletor de Ano com Botão de Filtro -->
+            <div class="flex items-center justify-center gap-4">
+                <!--Select de Ano-->
+                <div class="px-auto flex flex-col items-start justify-center">
+                    <label for="ano" class="block font-medium text-sm text-gray-500">Selecione o ano:</label>
+                    <span class="absolute">
+                        <img src="https://img.icons8.com/?size=100&id=15640&format=png&color=000000" alt="money--v1" class="w-7 h-7 mr-3 mt-5 ml-2 pt-1 text-gray-400"/>
+                    </span>
+                    <select id="ano" name="ano" class="mt-2 pl-11 block w-48 font-semibold placeholder-gray-400/70 rounded-lg border border-gray-200 bg-white pr-3 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40" required>
+                        {% for ano_item in anos %}
+                            <option class="font-semibold"  value="{{ ano_item }}" {% if ano_item == ano %}selected{% endif %}>
+                                {{ ano_item }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!--Botão de Filtro-->
+                <button @click="if (requisitado > 0) mostrarBarra = true" type="submit" class="px-6 py-2 mt-6 w-30 font-medium text-white capitalize transition-colors duration-300 transform bg-[#0056a0] rounded-lg hover:bg-white hover:border hover:border-[#0056a0] hover:text-[#0056a0] focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 cursor-pointer">
+                    filtrar
+                </button>
+            </div>
+        </form>
+
+        <h2 class="text-lg font-semibold text-[#0056a0] lg:text-2xl">
+            
+        </h2>
+
+        <!-- Tabelas -->
+        <div class="my-8">
+            
+            <!-- Tabela de Valores do Banco de dados para Regra 2 -->
+            <table class="w-full rounded-xl text-sm text-gray-700">
+                <thead class="">
+                    <tr>
+                        <th colspan="2" class="px-4 py-2 text-center text-lg text-[#009e3c] capitalize">Regra de Estoque {{ ano }}</th>
+                    </tr>
+                </thead>
+                <tbody class="">
+                    {% set rows = [
+                        { "text": "Dívida Consolidada Líquida", "value": dcl_rgf },
+                        { "text": "Receita corrente Líquida Ajustada x2", "value": rcl_rgf*2 },
+                        { "text": "Limite de Endividamento", "value": rcl_rgf*2-dcl_rgf},
+                        ] %}
+                    {% for row in rows %}
+                    <tr class="hover:bg-gray-100 border border-gray-400">
+                        <td class="border border-gray-400 px-4 py-2 font-semibold text-start">{{ row.text }}</td>
+                        <td class="border border-gray-400 px-4 py-2 font-medium text-end">R$ {{ row.value | separador_milhar }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table> 
+
+            <!-- Tabela de Valores do Banco de dados para Regra 2 -->
+            <table class="w-full rounded-xl  text-sm text-gray-700 mt-4">
+                <thead class="">
+                    <tr>
+                        <th colspan="2" class="px-4 py-2 text-center text-lg text-[#009e3c] capitalize">Regra de Contra-garantia {{ ano }}</th>
+                    </tr>
+                </thead>
+                <tbody class="border border-gray-400">
+                    {% set rows = [
+                        { "text": "Receitas Próprias", "value": receitas_proprias },
+                        { "text": "Despesas com Serviço da Dívida", "value": dsd },
+                        ] %}
+                    {% for row in rows %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="border border-gray-400 px-4 py-2 font-semibold text-start">{{ row.text }}</td>
+                        <td class="border border-gray-400 px-4 py-2 font-medium text-end">R$ {{ row.value | separador_milhar }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+    </div>
+</section>

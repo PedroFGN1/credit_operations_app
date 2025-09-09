@@ -1,0 +1,59 @@
+<!-- Tabelas de Regras -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-8">
+
+    <!-- Tabela de Valores do Banco de dados para Regra 1 -->
+    <table class="w-full border-collapse border border-gray-300 rounded-2xl text-sm text-gray-700">
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="border border-gray-400 px-4 py-2 text-center">{{ ano-1 }}</th>
+                <th class="border border-gray-400 px-4 py-2 text-center capitalize">regra 1</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set rows = [
+                { "text": "amortizações", "value": tabela[0].amortizacao },
+                { "text": "inversões", "value": tabela[0].inversao },
+                { "text": "investimentos", "value": tabela[0].investimento },
+                { "text": "operações de crédito liberadas", "value": tabela[0].operacao_credito },
+                { "text": "despesas de capital", "value": tabela[0].despesas_capital }  
+                ] %}
+            {% for row in rows %}
+            <tr class="hover:bg-gray-100">
+                <td class="border border-gray-400 px-4 py-2 font-semibold capitalize text-start">{{ row.text }}</td>
+                <td class="border border-gray-400 px-4 py-2 font-medium text-end">R$ {{ row.value | separador_milhar }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2" class="border border-{{tabela[0].bg | replace('bg-','')}} px-4 py-2 text-white font-medium text-center capitalize {{ tabela[0].bg }} ">Nova {{ tabela[0].situacao }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <!-- Tabela de Valores do Banco de dados para Regra 2 -->
+    <table class="w-full border-collapse border rounded-xl border-gray-300 text-sm text-gray-700">
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="border border-gray-400 px-4 py-2 text-center">{{ ano }}</th>
+                <th class="border border-gray-400 px-4 py-2 text-center capitalize">regra 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set rows = [
+                { "text": "amortizações", "value": tabela[1].amortizacao },
+                { "text": "inversões", "value": tabela[1].inversao },
+                { "text": "investimentos", "value": tabela[1].investimento },
+                { "text": "operações de crédito a liberar", "value": tabela[1].operacao_credito },
+                { "text": "despesas de capital", "value": tabela[1].despesas_capital },
+                { "text": "limite de operações", "value": tabela[1].limiteOp }
+                ] %}
+            {% for row in rows %}
+            <tr class="hover:bg-gray-100">
+                <td class="border border-gray-400 px-4 py-2 font-semibold capitalize text-start">{{ row.text }}</td>
+                <td class="border border-gray-400 px-4 py-2 font-medium text-end">R$ {{ row.value | separador_milhar }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> 
+
+</div>
+

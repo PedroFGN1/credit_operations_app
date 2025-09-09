@@ -1,0 +1,46 @@
+{% extends "components/base.html" %}
+
+{% block title %}Operações de Crédito{% endblock %}
+
+{% block content %}
+    {% include 'components/navigation.html' %}
+    
+    <div id="default-styled-tab-content" class="flex-grow container px-6 py-6 mx-auto my-2">
+
+        <!-- Seção de Simulação -->
+        <section class="hidden bg-white mt-8 rounded-xl border shadow-sm" id="styled-profile" role="tabpanel" aria-labelledby="profile-tab">
+            <div x-data="{ 
+                requisitado: {{ requisitado if requisitado else 0 }},
+                mostrarBarra: (localStorage.getItem('mostrarBarra') === 'true' && {{ requisitado if requisitado else 0 }} > 0) 
+                }" 
+                x-init="$watch('mostrarBarra', value => localStorage.setItem('mostrarBarra', value))" class="container px-6 py-6 mx-auto my-2">
+                
+                <div class="hidden items-center justify-center">
+                    <a href="/"><button class="px-6 py-2 w-30 font-medium text-white capitalize transition-colors duration-300 transform bg-[#0056a0] rounded-lg hover:bg-white hover:border hover:border-[#0056a0] hover:text-[#0056a0] focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 cursor-pointer">Atualizar Operações</button></a>
+                </div>
+                
+                {% include 'components/form_simulacao.html' %}
+                {% include 'components/tabela_regras.html' %}
+                
+                <!-- Tabela RCL e Barra de Progresso -->
+                <div class="w-full px-2 sm:px-10">
+                    {% include 'components/tabela_rcl.html' %}
+                    {% include 'components/barra_progresso.html' %}
+                </div>
+            </div>
+        </section>
+
+        {% include 'components/secao_estoque_garantias.html' %}
+        {% include 'components/secao_regras.html' %}
+        {% include 'components/secao_uploads.html'%}
+        {% include 'components/secao_dados.html' %}
+
+    </div>
+    
+    {% include 'components/footer.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='javascript/datatables.js') }}"></script>
+{% endblock %}
+
