@@ -1,6 +1,6 @@
 import json
 from flask import Blueprint, Response, jsonify, redirect, render_template, url_for
-from app.logger_component import LoggerComponent
+from app.utils.logger_component import LoggerComponent
 
 app_bp = Blueprint('app_bp', __name__, template_folder='templates')
 

@@ -3,8 +3,8 @@ import os
 from flask import Blueprint, current_app, jsonify, render_template, request, flash, redirect
 import pandas as pd
 from sqlalchemy import func
-from app.models import DCRCL, RGF, RREO, Operacoes, db
-from app.utils import allowed_file, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual, tratar_float, validation_credit_operation
+from app.models.models import DCRCL, RGF, RREO, Operacoes, db
+from app.utils.utils import allowed_file, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual, tratar_float, validation_credit_operation
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import requests

@@ -1,18 +1,15 @@
 from flask import Flask
-from .operation_routes import operation_bp
-from .app_routes import app_bp
-from app.utils import separador_milhar
-from config import get_base_dir, Config
-import os
+from .routes import operation_bp, app_bp
+from .utils.utils import separador_milhar
+from config import Config
 
 # Inicialização de extensões
-from app.models import db
+from .models.models import db
 
 def register_filters(app):
     '''
     Registra os filtros personalizados de template no Flask.
     '''
-
     app.template_filter('separador_milhar')(separador_milhar)
     return
 
