@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask
 from .operation_routes import operation_bp
+from .app_routes import app_bp
 from app.utils import separador_milhar
-from config_path import get_base_dir
+from config import get_base_dir, Config
 import os
 
 # Inicialização de extensões
@@ -17,12 +18,15 @@ def register_filters(app):
 
 def create_app():
     app = Flask(__name__)
+    config = Config()
 
     # Configurações da aplicação
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(get_base_dir(), 'instance','database.db')}"
-    print(f"Database path: {os.path.join(get_base_dir(), 'instance','database.db')}")
+    app.config.update(config.config_file['server'])
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.config_file['database']['uri']
+    print("Database URI:", app.config['SQLALCHEMY_DATABASE_URI'])
+    app.config['CACHE_ENABLED'] = config.config_file['cache']['enabled']
+    app.config['CACHE_TIMEOUT'] = config.config_file['cache']['timeout']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desativa alertas desnecessários
-
 
     # Inicializar extensões com a aplicação
     db.init_app(app)
@@ -33,6 +37,7 @@ def create_app():
 
     # Registra os Blueprints
     app.register_blueprint(operation_bp)
+    app.register_blueprint(app_bp)
 
     # Registrar filtros
     register_filters(app)

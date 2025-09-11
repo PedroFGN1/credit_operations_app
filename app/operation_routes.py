@@ -61,7 +61,7 @@ def dados_rgf():
 
 
 # Rota para gerar o relatório filtrado por mês
-@operation_bp.route('/', methods=['GET'], endpoint='operacoes_de_credito')
+@operation_bp.route('/painel_operacoes_credito', methods=['GET'], endpoint='operacoes_de_credito')
 def painel_operacoes_credito():
 
     # Obtendo o ano do request

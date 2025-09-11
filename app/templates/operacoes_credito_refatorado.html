@@ -18,10 +18,10 @@
                 <div class="hidden items-center justify-center">
                     <a href="/"><button class="px-6 py-2 w-30 font-medium text-white capitalize transition-colors duration-300 transform bg-[#0056a0] rounded-lg hover:bg-white hover:border hover:border-[#0056a0] hover:text-[#0056a0] focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80 cursor-pointer">Atualizar Operações</button></a>
                 </div>
-                
+
                 {% include 'components/form_simulacao.html' %}
                 {% include 'components/tabela_regras.html' %}
-                
+               
                 <!-- Tabela RCL e Barra de Progresso -->
                 <div class="w-full px-2 sm:px-10">
                     {% include 'components/tabela_rcl.html' %}
@@ -34,7 +34,8 @@
         {% include 'components/secao_regras.html' %}
         {% include 'components/secao_uploads.html'%}
         {% include 'components/secao_dados.html' %}
-
+        {% include 'components/secao_logging.html' %}
+        
     </div>
     
     {% include 'components/footer.html' %}
@@ -42,5 +43,6 @@
 
 {% block extra_scripts %}
     <script src="{{ url_for('static', filename='javascript/datatables.js') }}"></script>
+    <script src="{{ url_for('static', filename='javascript/logging.js') }}"></script>
 {% endblock %}
 
