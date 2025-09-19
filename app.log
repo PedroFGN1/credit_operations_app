@@ -1,0 +1,105 @@
+[2025-09-19 11:14:58,360] INFO in app: Iniciando Simulador de Operações de Crédito v2 v2.0.0
+[2025-09-19 11:14:58,859] INFO in app: Banco de dados configurado com sucesso
+[2025-09-19 11:14:58,860] INFO in app: Inicializando interface Eel
+[2025-09-19 11:14:59,731] INFO in app: Iniciando aplicação em web/main.html
+[2025-09-19 11:15:00,553] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,553] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,560] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /main.html HTTP/1.1" 200 13854 0.007833
+[2025-09-19 11:15:00,614] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,615] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,616] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /eel.js HTTP/1.1" 200 6164 0.001239
+[2025-09-19 11:15:00,621] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,621] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,624] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /css/styles.css HTTP/1.1" 200 2464 0.002723
+[2025-09-19 11:15:00,625] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,625] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,627] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /javascript/tailwindcss.js HTTP/1.1" 200 407636 0.002509
+[2025-09-19 11:15:00,629] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,629] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,631] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /javascript/flowbite.min.js HTTP/1.1" 200 136119 0.002244
+[2025-09-19 11:15:00,633] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,633] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,636] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /images/logoC_color.png HTTP/1.1" 200 181143 0.003088
+[2025-09-19 11:15:00,637] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,638] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,639] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /js/eel-main.js HTTP/1.1" 200 14712 0.002093
+[2025-09-19 11:15:00,644] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:00,645] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:00,647] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:00] "GET /javascript/alpine.min.js HTTP/1.1" 200 45077 0.002980
+[2025-09-19 11:15:01,292] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:01,293] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:01,296] INFO in handler: 127.0.0.1 - - [2025-09-19 11:15:01] "GET /favicon.ico HTTP/1.1" 404 882 0.003592
+[2025-09-19 11:15:01,568] DEBUG in handler: Initializing WebSocket
+[2025-09-19 11:15:01,568] DEBUG in handler: Validating WebSocket request
+[2025-09-19 11:15:01,568] DEBUG in handler: Attempting to upgrade connection
+[2025-09-19 11:15:01,568] DEBUG in handler: WebSocket request accepted, switching protocols
+[2025-09-19 11:15:01,573] INFO in app: Obtendo dados RREO - Ano: 2025
+[2025-09-19 11:15:01,595] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 11:15:01,597] INFO in app: Obtendo dados RGF - Ano: 2025
+[2025-09-19 11:15:01,602] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 11:16:20,894] INFO in app: Obtendo dados RREO - Ano: 2024
+[2025-09-19 11:16:20,930] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 11:16:20,942] INFO in app: Obtendo dados RGF - Ano: 2024
+[2025-09-19 11:16:20,945] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 11:17:20,528] INFO in app: Analisando operação - Ano: 2024, Valor: 1000000
+[2025-09-19 11:17:20,612] INFO in app: Análise concluída com sucesso
+[2025-09-19 11:18:32,871] INFO in app: Analisando operação - Ano: 2024, Valor: 1000000
+[2025-09-19 11:18:32,926] INFO in app: Análise concluída com sucesso
+[2025-09-19 11:20:18,622] DEBUG in websocket: Closed WebSocket
+[2025-09-19 11:20:18,623] DEBUG in websocket: Failed to write closing frame -> closing socket
+[2025-09-19 11:20:18,624] DEBUG in websocket: Closed WebSocket
+[2025-09-19 13:48:55,110] INFO in app: Iniciando Simulador de Operações de Crédito v2 v2.0.0
+[2025-09-19 13:48:55,170] INFO in app: Banco de dados configurado com sucesso
+[2025-09-19 13:48:55,170] INFO in app: Inicializando interface Eel
+[2025-09-19 13:48:56,041] INFO in app: Iniciando aplicação em web/main.html
+[2025-09-19 13:48:57,027] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,028] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,036] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /main.html HTTP/1.1" 200 13854 0.009122
+[2025-09-19 13:48:57,068] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,069] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,069] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /eel.js HTTP/1.1" 200 6164 0.000843
+[2025-09-19 13:48:57,076] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,076] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,078] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /css/styles.css HTTP/1.1" 200 2464 0.002561
+[2025-09-19 13:48:57,080] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,080] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,082] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /javascript/tailwindcss.js HTTP/1.1" 200 407636 0.002520
+[2025-09-19 13:48:57,084] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,085] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,087] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /javascript/flowbite.min.js HTTP/1.1" 200 136119 0.002450
+[2025-09-19 13:48:57,089] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,090] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,093] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /images/logoC_color.png HTTP/1.1" 200 181143 0.004036
+[2025-09-19 13:48:57,094] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,094] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,095] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /js/eel-main.js HTTP/1.1" 200 14712 0.001408
+[2025-09-19 13:48:57,113] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,113] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,115] INFO in handler: 127.0.0.1 - - [2025-09-19 13:48:57] "GET /javascript/alpine.min.js HTTP/1.1" 200 45077 0.001815
+[2025-09-19 13:48:57,826] DEBUG in handler: Initializing WebSocket
+[2025-09-19 13:48:57,826] DEBUG in handler: Validating WebSocket request
+[2025-09-19 13:48:57,827] DEBUG in handler: Attempting to upgrade connection
+[2025-09-19 13:48:57,827] DEBUG in handler: WebSocket request accepted, switching protocols
+[2025-09-19 13:48:57,842] INFO in app: Obtendo dados RREO - Ano: 2025
+[2025-09-19 13:48:57,896] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 13:48:57,901] INFO in app: Obtendo dados RGF - Ano: 2025
+[2025-09-19 13:48:57,913] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 13:49:22,584] INFO in app: Obtendo dados RREO - Ano: 2024
+[2025-09-19 13:49:22,641] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 13:49:22,657] INFO in app: Obtendo dados RGF - Ano: 2024
+[2025-09-19 13:49:22,664] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 13:49:41,499] INFO in app: Analisando operação - Ano: 2024, Valor: 10000000
+[2025-09-19 13:49:41,535] INFO in app: Análise concluída com sucesso
+[2025-09-19 14:02:30,967] INFO in app: Obtendo dados RREO - Ano: 2023
+[2025-09-19 14:02:31,182] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 14:02:31,200] INFO in app: Obtendo dados RGF - Ano: 2023
+[2025-09-19 14:02:31,204] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 14:03:45,203] INFO in app: Obtendo dados RREO - Ano: 2022
+[2025-09-19 14:03:45,234] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-19 14:03:45,242] INFO in app: Obtendo dados RGF - Ano: 2022
+[2025-09-19 14:03:45,246] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-19 14:04:23,228] INFO in app: Analisando operação - Ano: 2022, Valor: 10000000
+[2025-09-19 14:04:23,279] INFO in app: Análise concluída com sucesso
+[2025-09-19 14:04:58,030] DEBUG in websocket: Closed WebSocket
+[2025-09-19 14:04:58,037] DEBUG in websocket: Failed to write closing frame -> closing socket
+[2025-09-19 14:04:58,037] DEBUG in websocket: Closed WebSocket

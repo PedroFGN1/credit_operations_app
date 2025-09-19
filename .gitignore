@@ -2,3 +2,6 @@
 build
 OperationCredit.spec
 app/services
+obsolete
+__pycache__
+Operation_Credits_Eel

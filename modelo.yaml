@@ -1,0 +1,110 @@
+Primeira_Etapa:
+  - Regra_de_Ouro_Ano_Anterior:
+      validacao:
+        true:
+          descricao: Valor previsto dentro dos limites
+          proximo_passo: Prosseguir para Regra de Ouro (Ano Atual)
+        false:
+          descricao: Valor previsto ultrapassa os limites
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI]
+      base_normativa: Regra de ouro 167, Inciso III, da CF 88 + RSF 43/2001, Pag 78 do MIP
+      objetivo: A regra de ouro busca evitar o uso de recursos provenientes de operações de crédito para o pagamento de despesas correntes. Para isto, ela diz que as receitas de operação de crédito não podem ultrapassar as despesas de capital.
+
+  - Regra_de_Ouro_Ano_Atual:
+      validacao:
+        true:
+          descricao: Dentro dos limites
+          proximo_passo: Prosseguir para Limite de 16% da Receita Corrente Líquida
+        false:
+          descricao: Ultrapassa os limites
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI]
+      base_normativa: Regra de ouro 167, Inciso III, da CF 88 + RSF 43/2001, Pag 78 do MIP
+      objetivo: A regra de ouro busca evitar o uso de recursos provenientes de operações de crédito para o pagamento de despesas correntes. Para isto, ela diz que as receitas de operação de crédito não podem ultrapassar as despesas de capital.
+
+  - Limite_16_RCL:
+      validacao:
+        true:
+          descricao: (Receitas das Operações de Crédito + Receitas de Crédito Solicitadas) ≤ 16% da RCL Estimada
+          proximo_passo: Prosseguir para a Regra do Dispêndio
+        false:
+          descricao: (Receitas das Operações de Crédito + Receitas de Crédito Solicitadas) > 16% da RCL Estimada
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI]
+      base_normativa: Art 7º, Inciso I, da RSF 43/2001, Pag 80 e 81 do MIP
+      objetivo: O limite do MGA visa a reduzir a receita total de operações de crédito por meio de endividamento em um ano.
+
+  - Regra_do_Dispendio_115_RCL:
+      validacao:
+        true:
+          descricao: (Amortizações + Juros + Encargos) ≤ 11,5% da RCL Estimada
+          proximo_passo: Prosseguir para a Dívida Consolidada
+        false:
+          descricao: (Amortizações + Juros + Encargos) > 11,5% da RCL Estimada
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI]
+      base_normativa: Art 7º, Inciso II, da RSF 43/2001, Pag 82 e 83 do MIP
+      objetivo: Tem o objetivo de restringir os gastos com a rolagem da dívida, a fim de evitar um desequilíbrio fiscal. O limite de CAED/RCL é de 11,5% para média simples entre todos os anos da comparação.
+
+  - Divida_Consolidada:
+      validacao:
+        true:
+          descricao: Dívida Consolidada ≤ 2x a RCL Estimada
+          proximo_passo: Prosseguir para a confrotação total
+        false:
+          descricao: Dívida Consolidada > 2x a RCL Estimada
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [INTERNA]
+      base_normativa: Inciso III do Art 7º, combinado com art 3º da RSF 43/2001, Pag 98 do MIP
+      objetivo: Tem o objetivo de evitar o super endividamento
+
+Segunda_Etapa:
+  - Limite_de_Garantias:
+      validacao:
+        true:
+          descricao: Garantia ≤ 22% da RCL Estimada
+          proximo_passo: Prosseguir para a verificação do valor da operação de crédito
+        false:
+          descricao: Garantia > 22% da RCL Estimada
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [B.O]
+      base_normativa: Art. 9º da RSF 43/2001
+      objetivo: Impedir o comprometimento das garantias na RCL
+
+  - Valor_da_Garantia:
+      validacao:
+        true:
+          descricao: Garantia ≥ Valor da operação de crédito pretendida
+          proximo_passo: Prosseguir para a confrotação total
+        false:
+          descricao: Garantia < Valor da operação de crédito pretendida
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [B.O]
+      base_normativa: Art. 9º da RSF 43/2003
+      objetivo: Impedir o comprometimento das garantias na RCL
+
+Terceira_Etapa:
+  - Despesa_com_Pessoal:
+      validacao:
+        true:
+          descricao: Despesa com pessoal ≤ 60% da RCL Estimada
+          proximo_passo: Prosseguir para a próxima decisão de despesas correntes
+        false:
+          descricao: Despesa com pessoal > 60% da RCL Estimada
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI]
+      base_normativa: Art 19º II, LRF, RSF Nº 43/2001
+      objetivo: O excessivo gasto com despesas com pessoal pode comprometer a capacidade de honrar o serviço da dívida, tendo em vista que o gasto com pessoal é uma despesa de caráter continuado.
+
+  - Nota_CAPAG:
+      validacao:
+        true:
+          descricao: NOTA CAPAG SUPERIOR < A OU B
+          proximo_passo: Prosseguir para a confrotação total
+        false:
+          descricao: Nota CAPAG INFERIOR > A OU B
+          proximo_passo: Operação de Crédito Negada
+      banco_de_dados: [SICONFI, INTERNA]
+      base_normativa: MIP, exigível para a concessão de garantias da União. Necessidade do Ente obter CAPAG A OU B
+      objetivo: Caso o Ente não tenha a CAPAG apropriada, não poderá contar com a União no oferecimento de garantias, isto levará a um maior nível de risco e taxas de juros no mercado

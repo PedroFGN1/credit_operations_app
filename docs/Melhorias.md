@@ -1,5 +1,0 @@
-- Fazer rota para listar os anos disponíveis na base de dados e popular o select dinamicamente.
-- Fazer mapeamento de rotas e lógica contida em cada rota.
-- Separar lógica de código para Regra 1 e Regra 2.  2
-- Adicionar testes unitários e de integração.
-- Adicionar documentação da API com Swagger.
