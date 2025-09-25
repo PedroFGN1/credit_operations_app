@@ -103,3 +103,51 @@
 [2025-09-19 14:04:58,030] DEBUG in websocket: Closed WebSocket
 [2025-09-19 14:04:58,037] DEBUG in websocket: Failed to write closing frame -> closing socket
 [2025-09-19 14:04:58,037] DEBUG in websocket: Closed WebSocket
+[2025-09-23 09:32:27,745] INFO in app: Iniciando Simulador de Operações de Crédito v2 v2.0.0
+[2025-09-23 09:32:28,025] INFO in app: Banco de dados configurado com sucesso
+[2025-09-23 09:32:28,026] INFO in app: Inicializando interface Eel
+[2025-09-23 09:32:28,877] INFO in app: Iniciando aplicação em web/main.html
+[2025-09-23 09:32:30,200] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,200] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,206] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /main.html HTTP/1.1" 200 13854 0.006332
+[2025-09-23 09:32:30,251] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,252] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,253] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /eel.js HTTP/1.1" 200 6164 0.001224
+[2025-09-23 09:32:30,259] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,259] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,260] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /css/styles.css HTTP/1.1" 200 2464 0.001313
+[2025-09-23 09:32:30,261] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,261] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,262] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /javascript/tailwindcss.js HTTP/1.1" 200 407636 0.001413
+[2025-09-23 09:32:30,263] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,263] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,264] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /javascript/flowbite.min.js HTTP/1.1" 200 136119 0.001068
+[2025-09-23 09:32:30,264] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,265] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,266] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /js/eel-main.js HTTP/1.1" 200 14712 0.001838
+[2025-09-23 09:32:30,268] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,269] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,278] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /images/logoC_color.png HTTP/1.1" 200 181143 0.009403
+[2025-09-23 09:32:30,282] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,282] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,283] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /javascript/alpine.min.js HTTP/1.1" 200 45077 0.001147
+[2025-09-23 09:32:30,595] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,595] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,599] INFO in handler: 127.0.0.1 - - [2025-09-23 09:32:30] "GET /favicon.ico HTTP/1.1" 404 882 0.003486
+[2025-09-23 09:32:30,879] DEBUG in handler: Initializing WebSocket
+[2025-09-23 09:32:30,879] DEBUG in handler: Validating WebSocket request
+[2025-09-23 09:32:30,879] DEBUG in handler: Attempting to upgrade connection
+[2025-09-23 09:32:30,879] DEBUG in handler: WebSocket request accepted, switching protocols
+[2025-09-23 09:32:30,889] INFO in app: Obtendo dados RREO - Ano: 2025
+[2025-09-23 09:32:30,916] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-23 09:32:30,917] INFO in app: Obtendo dados RGF - Ano: 2025
+[2025-09-23 09:32:30,921] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-23 09:32:37,906] INFO in app: Obtendo dados RREO - Ano: 2024
+[2025-09-23 09:32:37,937] INFO in app: Dados RREO obtidos com sucesso
+[2025-09-23 09:32:37,945] INFO in app: Obtendo dados RGF - Ano: 2024
+[2025-09-23 09:32:37,949] INFO in app: Dados RGF obtidos com sucesso
+[2025-09-23 09:32:41,834] INFO in app: Analisando operação - Ano: 2024, Valor: 10000000
+[2025-09-23 09:32:41,862] INFO in app: Análise concluída com sucesso
+[2025-09-23 09:50:35,632] DEBUG in websocket: Closed WebSocket
+[2025-09-23 09:50:35,648] DEBUG in websocket: Failed to write closing frame -> closing socket
+[2025-09-23 09:50:35,649] DEBUG in websocket: Closed WebSocket

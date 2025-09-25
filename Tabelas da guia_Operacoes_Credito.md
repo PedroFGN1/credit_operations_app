@@ -33,5 +33,117 @@
 | 3. Nota CAPAG                                           | Nota CAPAG INFERIOR  > A OU B             | Operação de Crédito Vedada                              | SICONFI/INTERNA  | MIP, exigível para a concessão de garantias da União. Necessidade do Ente obter CAPAG A OU B | Caso o Ente não tenha a CAPAG apropriada, não poderá contar com a União no oferecimento de garantias, isto levará a um maior  nível de risco e taxas de juros no mercado             |
 | 3. Nota CAPAG                                           | NOTA CAPAG SUPERIOR  < A OU B             | Prosseguir para a confrotação total                     | SICONFI/INTERNA  | MIP, exigível para a concessão de garantias da União. Necessidade do Ente obter CAPAG A OU B | Caso o Ente não tenha a CAPAG apropriada, não poderá contar com a União no oferecimento de garantias, isto levará a um maior  nível de risco e taxas de juros no mercado  |
 
+# Lista Guia Variáveis
 
+- indice_mip: Índice de crescimento da Receita Corrente Líquida, conforme o MIP (Manual para Instruções de Pleitos).
+- rcl_anterior: Receita Corrente Líquida realizada de final de período do Ano Anterior. 
+- rcl_12meses: Receita Corrente Líquida realizada até o período *(n-1)* do Ano Atual.
+- rcl_estimada: Receita Corrente Líquida estimada, utilizando rcl_anterior multiplicando pelo indice_mip.
+- amortizacoes:
+    * amortizacoes_ano_anterior: Amortizações do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
+    * amortizacoes_ano_atual: Amortizações do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * amortizacoes_regra_dispendio: Somatório até 2027 dividido pelo período.
+    * amortizacoes_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
+- juros:
+    * juros_ano_anterior: Juros do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
+    * juros_ano_atual: Juros do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * juros_regra_dispendio: Somatório até 2027 dividido pelo período.
+    * juros_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
+- encargos:
+    * encargos_ano_anterior: Encargos do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
+    * encargos_ano_atual: Encargos do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * encargos_regra_dispendio: Somatório até 2027 dividido pelo período.
+    * encargos_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
+- divida_consolidada: Dívida consolidada total do ente, conforme o último RREO publicado.
+- divida_consolidada_liquida: Dívida consolidada líquida total do ente, conforme o último RREO publicado.
+- receita_credito_solicitadas: Receita total de operações de crédito solicitadas e em análise (interna), somente consideradas se receita prevista para o ano atual.
+- receita_operacoes_credito: Receita total de operações de crédito contratadas e em andamento (SICONFI).
+- despesa_pessoal: Despesa total com pessoal do ente, conforme o último RGF publicado.
+- garantia: receitas_impostos + receitas_transferencias_constitucionais_uniao - despesa_transferencias_constitucionais_municipios - servico_divida.
+    * servico_divida: Somatório de amortizacoes + juros + encargos, conforme o último RREO publicado.
+    * receitas_impostos: Somatório das receitas tributárias, conforme B.O.
+    * receitas_transferencias_constitucionais_uniao: Somatório das transferências correntes da União, conforme B.O.
+- valor_operacao_credito_pretendida: Valor total da operação de crédito simulada por fonte externa.
+- nota_capag: Última nota CAPAG publicada (interna).
 
+# Lista Guia Variáveis por Fonte de Dados
+
+## Fonte_de_Dados: SICONFI
+**Variáveis:**  
+- RCL_Anterior  
+- RCL_12meses  
+- RCL_Estimada
+
+## Fonte_de_Dados: Boletim Orçamentário (B.O)
+**Variáveis:**  
+- 
+
+## Fonte_de_Dados: INTERNA
+**Variáveis:**  
+- 
+
+# Lista Guia Variáveis por Regra
+
+## Regra_de_Ouro_Ano_Anterior
+**Variáveis:**  
+- RCL_Anterior  
+- Amortizações  
+- Juros  
+- Encargos  
+
+**Descrição:**  
+Verifica se as receitas de operações de crédito não ultrapassam as despesas de capital do ano anterior, evitando o uso de crédito para despesas correntes.
+
+---
+
+## Regra_de_Ouro_Ano_Atual
+**Variáveis:**  
+- RCL_Estimada  
+- Amortizações  
+- Juros  
+- Encargos  
+
+**Descrição:**  
+Garante que, no ano da operação, as receitas de crédito não sejam superiores às despesas de capital estimadas.
+
+---
+
+## Limite_16_RCL_Estimada
+**Variáveis:**  
+- Receita de Crédito Solicitadas  
+- Receita de Operações de Crédito  
+- RCL_Estimada  
+
+**Descrição:**  
+Limita o total de receitas de operações de crédito solicitadas e contratadas a até 16% da RCL estimada do ano.
+
+---
+
+## Regra_do_Dispendio_115_RCL_Estimada
+**Variáveis:**  
+- Amortizações  
+- Juros  
+- Encargos  
+- RCL_Estimada  
+
+**Descrição:**  
+Restringe os gastos com rolagem da dívida (amortizações, juros e encargos) a até 11,5% da RCL estimada.
+
+---
+
+## Limite_Dívida_Consolidada
+**Variáveis:**  
+- Dívida Consolidada  
+- RCL_Estimada  
+
+**Descrição:**  
+Garante que a dívida consolidada não ultrapasse o dobro da RCL estimada, evitando o superendividamento.
+
+---
+
+## Outras_Regras
+**Variáveis:**  
+- (Definir conforme necessidade futura)
+
+**Descrição:**  
+Espaço reservado para regras adicionais que possam ser incluídas posteriormente.
