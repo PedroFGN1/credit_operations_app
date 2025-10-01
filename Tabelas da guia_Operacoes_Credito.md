@@ -40,18 +40,18 @@
 - rcl_12meses: Receita Corrente Líquida realizada até o período *(n-1)* do Ano Atual.
 - rcl_estimada: Receita Corrente Líquida estimada, utilizando rcl_anterior multiplicando pelo indice_mip.
 - amortizacoes:
-    * amortizacoes_ano_anterior: Amortizações do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
-    * amortizacoes_ano_atual: Amortizações do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * amortizacoes_ano_anterior: Amortizações do ano anterior (Ano Anterior)
+    * amortizacoes_ano_atual: Amortizações do ano atual (Ano Atual)
     * amortizacoes_regra_dispendio: Somatório até 2027 dividido pelo período.
     * amortizacoes_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
 - juros:
-    * juros_ano_anterior: Juros do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
-    * juros_ano_atual: Juros do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * juros_ano_anterior: Juros do ano anterior (Ano Anterior)
+    * juros_ano_atual: Juros do ano atual (Ano Atual)
     * juros_regra_dispendio: Somatório até 2027 dividido pelo período.
     * juros_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
 - encargos:
-    * encargos_ano_anterior: Encargos do ano anterior (Ano Anterior) - para Regra de Ouro Ano Anterior: Liquidadas + Restos a pagar não processados.
-    * encargos_ano_atual: Encargos do ano atual (Ano Atual) - para Regra de Ouro Ano Atual: Dotação Atualizada último RREO exigível.
+    * encargos_ano_anterior: Encargos do ano anterior (Ano Anterior) 
+    * encargos_ano_atual: Encargos do ano atual (Ano Atual) 
     * encargos_regra_dispendio: Somatório até 2027 dividido pelo período.
     * encargos_operacao_credito: Fluxo total da operação de crédito simulada por fonte externa.
 - divida_consolidada: Dívida consolidada total do ente, conforme o último RREO publicado.
@@ -72,8 +72,10 @@
 **Variáveis:**  
 - rcl_anterior  
 - rcl_12meses  
-- amortizacoes 
-- juros 
+- amortizacoes_ano_anterior  
+- amortizacoes_ano_atual  
+- juros_ano_anterior  
+- juros_ano_atual  
 - encargos 
 - divida_consolidada
 - divida_consolidada_liquida
@@ -91,5 +93,11 @@
 **Variáveis:**
 - indice_mip
 - rcl_estimada
+- amortizacoes_regra_dispendio
+- amortizacoes_operacao_credito
+- juros_regra_dispendio
+- juros_operacao_credito
+- encargos_regra_dispendio
+- encargos_operacao_credito
 - valor_op_pretendida
 - nota_capag
