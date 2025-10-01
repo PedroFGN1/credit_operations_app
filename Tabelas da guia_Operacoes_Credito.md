@@ -63,87 +63,33 @@
     * servico_divida: Somatório de amortizacoes + juros + encargos, conforme o último RREO publicado.
     * receitas_impostos: Somatório das receitas tributárias, conforme B.O.
     * receitas_transferencias_constitucionais_uniao: Somatório das transferências correntes da União, conforme B.O.
-- valor_operacao_credito_pretendida: Valor total da operação de crédito simulada por fonte externa.
+- valor_op_pretendida: Valor total da operação de crédito simulada por fonte externa.
 - nota_capag: Última nota CAPAG publicada (interna).
 
 # Lista Guia Variáveis por Fonte de Dados
 
 ## Fonte_de_Dados: SICONFI
 **Variáveis:**  
-- RCL_Anterior  
-- RCL_12meses  
-- RCL_Estimada
+- rcl_anterior  
+- rcl_12meses  
+- amortizacoes 
+- juros 
+- encargos 
+- divida_consolidada
+- divida_consolidada_liquida
+- receita_operacoes_credito
+- despesa_pessoal
+- servico_divida
+
 
 ## Fonte_de_Dados: Boletim Orçamentário (B.O)
 **Variáveis:**  
-- 
+- receitas_impostos
+- receitas_transferencias_constitucionais_uniao
 
 ## Fonte_de_Dados: INTERNA
-**Variáveis:**  
-- 
-
-# Lista Guia Variáveis por Regra
-
-## Regra_de_Ouro_Ano_Anterior
-**Variáveis:**  
-- RCL_Anterior  
-- Amortizações  
-- Juros  
-- Encargos  
-
-**Descrição:**  
-Verifica se as receitas de operações de crédito não ultrapassam as despesas de capital do ano anterior, evitando o uso de crédito para despesas correntes.
-
----
-
-## Regra_de_Ouro_Ano_Atual
-**Variáveis:**  
-- RCL_Estimada  
-- Amortizações  
-- Juros  
-- Encargos  
-
-**Descrição:**  
-Garante que, no ano da operação, as receitas de crédito não sejam superiores às despesas de capital estimadas.
-
----
-
-## Limite_16_RCL_Estimada
-**Variáveis:**  
-- Receita de Crédito Solicitadas  
-- Receita de Operações de Crédito  
-- RCL_Estimada  
-
-**Descrição:**  
-Limita o total de receitas de operações de crédito solicitadas e contratadas a até 16% da RCL estimada do ano.
-
----
-
-## Regra_do_Dispendio_115_RCL_Estimada
-**Variáveis:**  
-- Amortizações  
-- Juros  
-- Encargos  
-- RCL_Estimada  
-
-**Descrição:**  
-Restringe os gastos com rolagem da dívida (amortizações, juros e encargos) a até 11,5% da RCL estimada.
-
----
-
-## Limite_Dívida_Consolidada
-**Variáveis:**  
-- Dívida Consolidada  
-- RCL_Estimada  
-
-**Descrição:**  
-Garante que a dívida consolidada não ultrapasse o dobro da RCL estimada, evitando o superendividamento.
-
----
-
-## Outras_Regras
-**Variáveis:**  
-- (Definir conforme necessidade futura)
-
-**Descrição:**  
-Espaço reservado para regras adicionais que possam ser incluídas posteriormente.
+**Variáveis:**
+- indice_mip
+- rcl_estimada
+- valor_op_pretendida
+- nota_capag
