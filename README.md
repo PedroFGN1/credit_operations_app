@@ -1,20 +1,24 @@
-# Simulador de Operações de Crédito - Aplicativo Desktop
+# Simulador de Operações de Crédito - Aplicativo Desktop com Eel
 
-Este é um aplicativo desktop desenvolvido com Flask e PyWebView para gerenciar operações de crédito. Ele oferece uma interface de usuário amigável para interagir com um banco de dados local e configurações personalizáveis.
+Este é um aplicativo desktop desenvolvido com Python e [Eel](https://github.com/python-eel/Eel) para simular e gerenciar operações de crédito. Ele oferece uma interface de usuário moderna e amigável, permitindo a interação com um banco de dados local e a execução de análises financeiras.
 
 ## Funcionalidades
 
-- **Interface Desktop:** Utiliza PyWebView para fornecer uma experiência de aplicativo desktop.
-- **Configuração Flexível:** Permite a configuração de banco de dados, servidor e cache através de um arquivo `config.json`.
-- **Servidor Flask Integrado:** Roda um servidor Flask em uma thread separada para servir a interface web.
-- **Gerenciamento de Dados:** Interage com um banco de dados SQLite local para armazenar e gerenciar dados de operações de crédito.
+- **Interface Desktop Híbrida:** Utiliza Eel para integrar uma interface web (HTML/CSS/JavaScript) com a lógica de backend Python, proporcionando uma experiência de aplicativo desktop nativa.
+- **Análise de Operações de Crédito:** Realiza análises detalhadas de operações de crédito com base em parâmetros como ano e valor requisitado.
+- **Gestão de Dados Financeiros:** Permite a obtenção e atualização de dados RREO (Relatório Resumido da Execução Orçamentária) e RGF (Relatório de Gestão Fiscal).
+- **Importação de Dados:** Suporta a importação de dados de operações a partir de arquivos CSV.
+- **Banco de Dados Local:** Interage com um banco de dados SQLite local para armazenamento persistente de dados.
+- **Configuração Flexível:** Configurações como caminho do banco de dados, diretórios de upload e logging são gerenciadas através do arquivo `config.py`.
 
 ## Tecnologias Utilizadas
 
 - **Python:** Linguagem de programação principal.
-- **Flask:** Microframework web para a lógica de backend e roteamento.
-- **PyWebView:** Biblioteca para exibir conteúdo web em janelas desktop nativas.
+- **Eel:** Biblioteca para criar aplicativos desktop com tecnologias web.
+- **SQLAlchemy:** ORM (Object-Relational Mapper) para interação com o banco de dados.
 - **SQLite:** Banco de dados leve e embutido para armazenamento de dados.
+- **Pandas:** Para manipulação e análise de dados (identificado em `requirements.txt`).
+- **HTML, CSS, JavaScript:** Para a construção da interface de usuário.
 
 ## Instalação
 
@@ -27,58 +31,61 @@ Para configurar e rodar o projeto localmente, siga os passos abaixo:
    cd credit_operations_app
    ```
 
-2. **Instale as dependências:**
-
-   Embora o arquivo `requirements.txt` não tenha sido lido, as dependências esperadas incluem `Flask` e `PyWebView`. Você pode instalá-las manualmente:
+2. **Mude para a branch `feat/app-eel`:**
 
    ```bash
-   pip install Flask PyWebView
+   git checkout feat/app-eel
    ```
 
-   *Nota: Pode haver outras dependências não listadas aqui devido à falha na leitura do arquivo `requirements.txt`.*
+3. **Instale as dependências:**
 
-3. **Configuração (Opcional):**
+   As dependências do projeto estão listadas no arquivo `requirements.txt`. Instale-as usando pip:
 
-   O aplicativo pode ser configurado através de um arquivo `config.json` localizado no diretório `instance/`. Um exemplo de configuração padrão é:
-
-   ```json
-   {
-       "database": {
-           "uri": "sqlite:///instance/database.db"
-       },
-       "server": {
-           "host": "127.0.0.1",
-           "port": 5000,
-           "debug": false
-       },
-       "cache": {
-           "enabled": true,
-           "timeout": 300
-       }
-   }
+   ```bash
+   pip install -r requirements.txt
    ```
 
 ## Uso
 
-Para iniciar o aplicativo, execute o arquivo `run.py`:
+Para iniciar o aplicativo, execute o arquivo `app.py`:
 
 ```bash
-python run.py
+python app.py
 ```
 
-Isso iniciará o servidor Flask e abrirá a interface do aplicativo em uma janela desktop.
+Isso iniciará a aplicação Eel e abrirá a interface do aplicativo em uma janela desktop.
 
 ## Estrutura do Projeto
 
 ```
 credit_operations_app/
-├── app/                  # Contém a lógica principal do aplicativo Flask
-├── config.py             # Configurações do aplicativo
-├── instance/             # Arquivos de instância, como o banco de dados e config.json
-├── docs/                 # Documentação adicional (se houver)
-├── OperationCredit.exe   # Executável do aplicativo (se compilado com PyInstaller)
-├── requirements.txt      # Dependências do projeto (não lido)
-└── run.py                # Ponto de entrada para iniciar o aplicativo
+├── app.py                  # Ponto de entrada principal da aplicação Eel
+├── config.py               # Configurações do aplicativo (caminhos, logging, etc.)
+├── database_models.py      # Definições dos modelos de banco de dados SQLAlchemy
+├── data_updater.py         # Lógica para atualização e importação de dados (RREO, RGF, CSV)
+├── rule_engine.py          # Lógica de análise de operações de crédito
+├── utils.py                # Funções utilitárias
+├── requirements.txt        # Dependências do projeto Python
+├── instance/               # Contém o banco de dados SQLite (database.db) e outros arquivos de instância
+├── web/                    # Arquivos da interface web (HTML, CSS, JavaScript) para o Eel
+│   ├── css/
+│   ├── images/
+│   ├── javascript/
+│   ├── js/
+│   └── main.html           # Página principal da interface
+└── app.log                 # Arquivo de log da aplicação
 ```
 
+## Contribuição
 
+No momento não estamos aceitando contribuições externas. No entanto, sinta-se à vontade para abrir issues.
+
+## Licença
+
+Este projeto está licenciado sob licença personalizada. Veja o arquivo `LICENSE` para mais detalhes.
+
+---
+
+## Desenvolvido por Pedro Galvão - [GitHub](https://github.com/PedroFGN1)
+
+---
