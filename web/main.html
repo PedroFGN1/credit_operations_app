@@ -220,6 +220,57 @@
         
     </div>
     
+    <!-- Modal de Feedback Dinâmico -->
+    <div id="modal-feedback" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <!-- Cabeçalho do Modal -->
+            <div class="flex justify-between items-center pb-3 border-b">
+                <h3 class="text-lg font-bold text-gray-900">Análise de Regras de Crédito</h3>
+                <button id="btn-fechar-modal" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Corpo do Modal -->
+            <div class="mt-4 max-h-96 overflow-y-auto">
+                <!-- Seção de Regras Violadas -->
+                <div id="secao-regras-violadas" class="mb-6">
+                    <h4 class="text-md font-semibold text-red-600 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Regras Violadas
+                    </h4>
+                    <div id="lista-regras-violadas" class="space-y-3">
+                        <!-- Conteúdo será inserido dinamicamente -->
+                    </div>
+                </div>
+                
+                <!-- Seção de Regras Cumpridas -->
+                <div id="secao-regras-cumpridas" class="mb-6">
+                    <h4 class="text-md font-semibold text-green-600 mb-3 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Regras Cumpridas
+                    </h4>
+                    <div id="lista-regras-cumpridas" class="space-y-3">
+                        <!-- Conteúdo será inserido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rodapé do Modal -->
+            <div class="flex justify-end pt-3 border-t">
+                <button id="btn-fechar-modal-2" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-screen-xl mx-auto p-4">

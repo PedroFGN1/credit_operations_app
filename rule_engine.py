@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy import func
 from database_models import DCRCL, RGF, RREO, db
 from utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
+from config import carregar_modelo_yaml
 
 
 def analisar_operacao(ano, valor_requisitado=0.0):
@@ -27,6 +28,11 @@ def analisar_operacao(ano, valor_requisitado=0.0):
             ano = datetime.now().year
             
         anos = [ano for ano in range(2015, 2030)]
+        
+        # Carrega o modelo YAML para feedback dinâmico
+        modelo = carregar_modelo_yaml()
+        regras_cumpridas = []
+        regras_violadas = []
         
         # Definindo os tipos de pagamento para cada linha
         filtros = {
@@ -273,8 +279,175 @@ def analisar_operacao(ano, valor_requisitado=0.0):
                     RREO.coluna == 'DOTAÇÃO ATUALIZADA (a)',
                     RREO.conta == 'Serviço da Dívida Externa'
                 )
-                .scalar() or 0)
+                           )
             )
+
+        # Análise das regras para feedback dinâmico
+        if modelo:
+            # Regra de Ouro - Ano Anterior
+            regra_ouro_anterior = None
+            for linha in tabela:
+                if linha["regra"] == "regra_1":
+                    if linha["limiteOp"] >= 0:
+                        regra_ouro_anterior = True
+                    else:
+                        regra_ouro_anterior = False
+                    break
+            
+            if regra_ouro_anterior is not None:
+                regra_info = {}
+                for etapa in modelo.get("Primeira_Etapa", []):
+                    if "Regra_de_Ouro_Ano_Anterior" in etapa:
+                        regra_info = etapa["Regra_de_Ouro_Ano_Anterior"]
+                        break
+                
+                if regra_ouro_anterior:
+                    validacao = regra_info.get("validacao", {}).get("true", {})
+                    regras_cumpridas.append({
+                        "nome": "Regra de Ouro (Ano Anterior)",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+                else:
+                    validacao = regra_info.get("validacao", {}).get("false", {})
+                    regras_violadas.append({
+                        "nome": "Regra de Ouro (Ano Anterior)",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+
+            # Regra de Ouro - Ano Atual
+            regra_ouro_atual = None
+            for linha in tabela:
+                if linha["regra"] == "regra_2":
+                    if linha["limiteOp"] >= 0:
+                        regra_ouro_atual = True
+                    else:
+                        regra_ouro_atual = False
+                    break
+            
+            if regra_ouro_atual is not None:
+                regra_info = {}
+                for etapa in modelo.get("Primeira_Etapa", []):
+                    if "Regra_de_Ouro_Ano_Atual" in etapa:
+                        regra_info = etapa["Regra_de_Ouro_Ano_Atual"]
+                        break
+                if regra_ouro_atual:
+                    validacao = regra_info.get("validacao", {}).get("true", {})
+                    regras_cumpridas.append({
+                        "nome": "Regra de Ouro (Ano Atual)",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+                else:
+                    validacao = regra_info.get("validacao", {}).get("false", {})
+                    regras_violadas.append({
+                        "nome": "Regra de Ouro (Ano Atual)",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+
+            # Limite de 16% da RCL
+            if rcl > 0 and apuracao:
+                limite_16_cumprido = apuracao.get("limite_16_rcl", {}).get("status") == "aprovado"
+                regra_info = {}
+                for etapa in modelo.get("Primeira_Etapa", []):
+                    if "Limite_16_RCL" in etapa:
+                        regra_info = etapa["Limite_16_RCL"]
+                        break
+                
+                if limite_16_cumprido:
+                    validacao = regra_info.get("validacao", {}).get("true", {})
+                    regras_cumpridas.append({
+                        "nome": "Limite de 16% da RCL",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+                else:
+                    validacao = regra_info.get("validacao", {}).get("false", {})
+                    regras_violadas.append({
+                        "nome": "Limite de 16% da RCL",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+
+            # Regra do Dispêndio 11,5% RCL
+            if rcl > 0 and apuracao:
+                dispendio_cumprido = apuracao.get("regra_dispendio", {}).get("status") == "aprovado"
+                regra_info = {}
+                for etapa in modelo.get("Primeira_Etapa", []):
+                    if "Regra_do_Dispendio_115_RCL" in etapa:
+                        regra_info = etapa["Regra_do_Dispendio_115_RCL"]
+                        break
+                
+                if dispendio_cumprido:
+                    validacao = regra_info.get("validacao", {}).get("true", {})
+                    regras_cumpridas.append({
+                        "nome": "Regra do Dispêndio 11,5% RCL",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+                else:
+                    validacao = regra_info.get("validacao", {}).get("false", {})
+                    regras_violadas.append({
+                        "nome": "Regra do Dispêndio 11,5% RCL",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+
+            # Dívida Consolidada
+            if rcl_rgf > 0:
+                divida_consolidada_cumprida = dcl_rgf <= (2 * rcl_rgf)
+                regra_info = {}
+                for etapa in modelo.get("Primeira_Etapa", []):
+                    if "Divida_Consolidada" in etapa:
+                        regra_info = etapa["Divida_Consolidada"]
+                        break
+                
+                if divida_consolidada_cumprida:
+                    validacao = regra_info.get("validacao", {}).get("true", {})
+                    regras_cumpridas.append({
+                        "nome": "Dívida Consolidada",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
+                else:
+                    validacao = regra_info.get("validacao", {}).get("false", {})
+                    regras_violadas.append({
+                        "nome": "Dívida Consolidada",
+                        "descricao": validacao.get("descricao", ""),
+                        "proximo_passo": validacao.get("proximo_passo", ""),
+                        "base_normativa": regra_info.get("base_normativa", ""),
+                        "objetivo": regra_info.get("objetivo", ""),
+                        "banco_de_dados": regra_info.get("banco_de_dados", [])
+                    })
 
         # Retorna todos os dados necessários para o frontend
         return {
@@ -288,7 +461,9 @@ def analisar_operacao(ano, valor_requisitado=0.0):
             'apuracao': apuracao,
             'dados_barra': dados_barra,
             'receitas_proprias': float(receitas_proprias),
-            'dsd': float(dsd)
+            'dsd': float(dsd),
+            'regras_cumpridas': regras_cumpridas,
+            'regras_violadas': regras_violadas
         }
         
     except Exception as e:
@@ -305,7 +480,9 @@ def analisar_operacao(ano, valor_requisitado=0.0):
             'apuracao': {},
             'dados_barra': {},
             'receitas_proprias': 0,
-            'dsd': 0
+            'dsd': 0,
+            'regras_cumpridas': [],
+            'regras_violadas': []
         }
 
 

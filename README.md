@@ -7,6 +7,7 @@ Este é um aplicativo desktop desenvolvido com Python e [Eel](https://github.com
 - **Interface Desktop Híbrida:** Utiliza Eel para integrar uma interface web (HTML/CSS/JavaScript) com a lógica de backend Python, proporcionando uma experiência de aplicativo desktop nativa.
 - **Análise de Operações de Crédito:** Realiza análises detalhadas de operações de crédito com base em parâmetros como ano e valor requisitado.
 - **Gestão de Dados Financeiros:** Permite a obtenção e atualização de dados RREO (Relatório Resumido da Execução Orçamentária) e RGF (Relatório de Gestão Fiscal).
+- **Feedback Dinâmico:** Apresenta feedback detalhado sobre as regras de negócio cumpridas e violadas durante a simulação de operações de crédito.
 - **Importação de Dados:** Suporta a importação de dados de operações a partir de arquivos CSV.
 - **Banco de Dados Local:** Interage com um banco de dados SQLite local para armazenamento persistente de dados.
 - **Configuração Flexível:** Configurações como caminho do banco de dados, diretórios de upload e logging são gerenciadas através do arquivo `config.py`.

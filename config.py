@@ -6,6 +6,7 @@ incluindo configurações de banco de dados e outras configurações gerais.
 """
 
 import os
+import yaml
 from pathlib import Path
 
 # Diretório base da aplicação
@@ -63,3 +64,18 @@ LOGGING_CONFIG = {
         'handlers': ['console', 'file']
     }
 }
+
+def carregar_modelo_yaml():
+    """
+    Carrega o arquivo modelo.yaml e retorna seu conteúdo como dicionário.
+    
+    Returns:
+        dict: Conteúdo do modelo.yaml
+    """
+    try:
+        modelo_path = BASE_DIR / "modelo.yaml"
+        with open(modelo_path, 'r', encoding='utf-8') as file:
+            return yaml.safe_load(file)
+    except Exception as e:
+        print(f"Erro ao carregar modelo.yaml: {e}")
+        return {}

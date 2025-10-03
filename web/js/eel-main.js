@@ -140,6 +140,10 @@ async function executarSimulacao() {
         atualizarValoresRCL(resultado);
         atualizarBarraProgresso(resultado);
         
+        // Construir e exibir modal de feedback
+        construirModalFeedback(resultado.regras_cumpridas, resultado.regras_violadas);
+        mostrarModal();
+        
         mostrarMensagem('Simulação executada com sucesso!', 'success');
         
     } catch (error) {
@@ -444,3 +448,123 @@ function obterClasseTipo(tipo) {
     
     return classes[tipo] || classes['info'];
 }
+
+
+/**
+ * Mostra o modal de feedback
+ */
+function mostrarModal() {
+    const modal = document.getElementById('modal-feedback');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+/**
+ * Esconde o modal de feedback
+ */
+function esconderModal() {
+    const modal = document.getElementById('modal-feedback');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/**
+ * Constrói o conteúdo do modal de feedback dinamicamente
+ */
+function construirModalFeedback(regrasCumpridas, regrasVioladas) {
+    const listaVioladas = document.getElementById('lista-regras-violadas');
+    const listaCumpridas = document.getElementById('lista-regras-cumpridas');
+    const secaoVioladas = document.getElementById('secao-regras-violadas');
+    const secaoCumpridas = document.getElementById('secao-regras-cumpridas');
+    
+    // Limpar conteúdo anterior
+    if (listaVioladas) listaVioladas.innerHTML = '';
+    if (listaCumpridas) listaCumpridas.innerHTML = '';
+    
+    // Construir regras violadas
+    if (regrasVioladas && regrasVioladas.length > 0) {
+        regrasVioladas.forEach(regra => {
+            const elemento = criarElementoRegra(regra, 'violada');
+            listaVioladas.appendChild(elemento);
+        });
+        secaoVioladas.style.display = 'block';
+    } else {
+        secaoVioladas.style.display = 'none';
+    }
+    
+    // Construir regras cumpridas
+    if (regrasCumpridas && regrasCumpridas.length > 0) {
+        regrasCumpridas.forEach(regra => {
+            const elemento = criarElementoRegra(regra, 'cumprida');
+            listaCumpridas.appendChild(elemento);
+        });
+        secaoCumpridas.style.display = 'block';
+    } else {
+        secaoCumpridas.style.display = 'none';
+    }
+}
+
+/**
+ * Cria um elemento HTML para uma regra
+ */
+function criarElementoRegra(regra, tipo) {
+    const div = document.createElement('div');
+    const corBorda = tipo === 'violada' ? 'border-red-200' : 'border-green-200';
+    const corFundo = tipo === 'violada' ? 'bg-red-50' : 'bg-green-50';
+    
+    div.className = `border ${corBorda} ${corFundo} rounded-lg p-4`;
+    
+    // Formatação dos bancos de dados
+    const bancosFormatados = Array.isArray(regra.banco_de_dados) 
+        ? regra.banco_de_dados.join(', ') 
+        : regra.banco_de_dados || 'N/A';
+    
+    div.innerHTML = `
+        <div class="mb-2">
+            <h5 class="font-semibold text-gray-900">${regra.nome || 'Regra não identificada'}</h5>
+        </div>
+        <div class="text-sm text-gray-700 space-y-2">
+            <p><strong>Descrição:</strong> ${regra.descricao || 'N/A'}</p>
+            <p><strong>Próximo Passo:</strong> ${regra.proximo_passo || 'N/A'}</p>
+            <p><strong>Base Normativa:</strong> ${regra.base_normativa || 'N/A'}</p>
+            <p><strong>Objetivo:</strong> ${regra.objetivo || 'N/A'}</p>
+            <p><strong>Banco de Dados:</strong> ${bancosFormatados}</p>
+        </div>
+    `;
+    
+    return div;
+}
+
+// Configurar event listeners para o modal quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões para fechar o modal
+    const btnFecharModal = document.getElementById('btn-fechar-modal');
+    const btnFecharModal2 = document.getElementById('btn-fechar-modal-2');
+    const modal = document.getElementById('modal-feedback');
+    
+    if (btnFecharModal) {
+        btnFecharModal.addEventListener('click', esconderModal);
+    }
+    
+    if (btnFecharModal2) {
+        btnFecharModal2.addEventListener('click', esconderModal);
+    }
+    
+    // Fechar modal ao clicar fora dele
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                esconderModal();
+            }
+        });
+    }
+    
+    // Fechar modal com tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            esconderModal();
+        }
+    });
+});
