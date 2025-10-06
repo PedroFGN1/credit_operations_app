@@ -12,38 +12,6 @@ class Database:
 
 db = Database()
 
-class DCRCL(Base):
-    __tablename__ = 'dc_rcl'
-    ano = Column(Integer, primary_key=True)
-    divida_consolidada = Column(Numeric(15,2), nullable=False)
-    receita_corrente_liquida = Column(Numeric(15,2), nullable=False)
-    status = Column(String(255), nullable=False)
-    dc_rcl = Column(String(255), nullable=False)
-
-class DCRCLRELATORIO(Base):
-    __tablename__ = 'dc_rcl_relatorio'
-    id = Column(Integer, primary_key=True)
-    competencia = Column(Date, nullable=False)
-    rcl = Column(Numeric(15,2), nullable=False)
-    dc = Column(Numeric(15,2), nullable=False)
-
-class RCLAJUSTADA(Base):
-    __tablename__ = 'rcl_ajustada'
-    id = Column(Integer, primary_key=True)
-    ano = Column(Integer, nullable=False)
-    rcl_ajustada = Column(Numeric(15,2), nullable=False)
-
-class Operacoes(Base):
-    __tablename__ = 'despesas_receitas_operacoes'
-
-    id = Column(Integer, primary_key=True)
-    ano = Column(Integer, nullable=False)
-    bimestre = Column(Integer, nullable=False)
-    instituicao = Column(String(255), nullable=False)
-    movimentacao_contabil = Column(String(255), nullable=False)
-    natureza_despesa_receita = Column(String(255), nullable=False)
-    valor = Column(Numeric(15,2), nullable=False)
-
 class RREO(Base):
     __tablename__ = 'rreo'
 
