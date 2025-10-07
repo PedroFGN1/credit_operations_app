@@ -7,7 +7,7 @@ extraída das rotas Flask originais e refatorada para uso com Eel.
 
 from datetime import datetime
 from sqlalchemy import func
-from database_models import DCRCL, RGF, RREO, db
+from database_models import RGF, RREO, db
 from utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
 from config import carregar_modelo_yaml
 
@@ -152,7 +152,7 @@ def analisar_operacao(ano, valor_requisitado=0.0):
                 limiteOp = despesas_capital - operacao
                 
                 try:
-                    rcl = (db.session.query(func.sum(DCRCL.receita_corrente_liquida)).filter(DCRCL.ano == ano).scalar()) or 0
+                    rcl = 0
                     apuracao = validation_credit_operation(float(valor_requisitado), float(rcl), float(operacao), float(limiteOp))
                     dados_barra = bar_data(valor_requisitado, operacao, rcl, limiteOp)
                 except Exception as e:

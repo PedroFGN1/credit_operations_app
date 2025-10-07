@@ -50,33 +50,99 @@ class RegraDeOuroAnoAnterior(RegraDeNegocio):
         contas_operacao_credito = ['OPERAÇÕES DE CRÉDITO']
 
         # Usa a função auxiliar para fazer os cálculos de forma limpa
-        despesas_capital = _soma_valores(dados_ano_anterior, contas_despesa_capital, colunas_despesa)
-        operacoes_credito = _soma_valores(dados_ano_anterior, contas_operacao_credito, colunas_operacao)
+        despesas_capital_total, despesas_capital_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_anterior, contas_despesa_capital, colunas_despesa
+        )
+        operacoes_credito_total, operacoes_credito_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_anterior, contas_operacao_credito, colunas_operacao
+        )
 
         # A lógica da regra
-        limite_disponivel = despesas_capital - operacoes_credito
+        limite_disponivel = despesas_capital_total - operacoes_credito_total
         aprovado = limite_disponivel >= 0
         
         # Retorna o resultado padronizado
         return {
             'aprovado': aprovado,
             'dados_calculados': {
-                'despesas_capital': despesas_capital,
-                'operacoes_credito': operacoes_credito,
-                'limite_disponivel': limite_disponivel
+                'limite_disponivel': limite_disponivel,
+                'despesas_capital': {
+                    'total': despesas_capital_total,
+                    'detalhe': despesas_capital_detalhe
+                },
+                'operacoes_credito': {
+                    'total': operacoes_credito_total,
+                    'detalhe': operacoes_credito_detalhe
+                }
             }
         }
     
-def _soma_valores(registros: list, filtros_conta: list, filtros_coluna: list):
+class RegraDeOuroAnoAtual(RegraDeNegocio):
     """
-    Função auxiliar para somar valores de uma lista de registros
-    com base em filtros de conta e coluna.
+    Verifica a projeção da Regra de Ouro para o ano corrente.
+    """
+    def avaliar(self):
+        # Desta vez, usamos os dados do ano corrente
+        dados_ano_corrente = self.dados_rreo.get(self.ano, {}).get('registros', [])
+        
+        if not dados_ano_corrente:
+            return {'aprovado': True, 'dados_calculados': {'mensagem': 'Sem dados para o ano corrente.'}}
+
+        # Filtros para Despesas de Capital (idênticos à regra anterior)
+        colunas_despesa = ['DESPESAS LIQUIDADAS ATÉ O BIMESTRE (h)', 'INSCRITAS EM RESTOS A PAGAR NÃO PROCESSADOS (k)']
+        contas_despesa_capital = ['AMORTIZAÇÃO DA DÍVIDA', 'INVERSÕES FINANCEIRAS', 'INVESTIMENTOS']
+        
+        # Filtros para Operações de Crédito
+        colunas_operacao = ['PREVISÃO ATUALIZADA (a)']
+        contas_operacao_credito = ['OPERAÇÕES DE CRÉDITO']
+
+        # Cálculos usando a função auxiliar
+        despesas_capital_total, despesas_capital_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_corrente, contas_despesa_capital, colunas_despesa
+        )
+        operacoes_credito_total, operacoes_credito_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_corrente, contas_operacao_credito, colunas_operacao
+        )
+
+        # Lógica da regra
+        limite_disponivel = despesas_capital_total - operacoes_credito_total
+        aprovado = limite_disponivel >= 0
+        
+        # Retorno padronizado
+        return {
+            'aprovado': aprovado,
+            'dados_calculados': {
+                'limite_disponivel': limite_disponivel,
+                'despesas_capital': {
+                    'total': despesas_capital_total,
+                    'detalhe': despesas_capital_detalhe
+                },
+                'operacoes_credito': {
+                    'total': operacoes_credito_total,
+                    'detalhe': operacoes_credito_detalhe
+                }
+            }
+        }
+
+
+def _calcular_e_detalhar_soma(registros: list, filtros_conta: list, filtros_coluna: list):
+    """
+    Função auxiliar que calcula a soma E detalha os componentes dessa soma.
+
+    Retorna uma tupla contendo: (soma_total, dicionario_com_detalhes)
     """
     soma = 0.0
+    detalhes = {conta: 0.0 for conta in filtros_conta} # Inicializa o dicionário de detalhes
+
     for reg in registros:
+        # Verifica se o registro corresponde aos filtros de conta e coluna
         if reg['conta'] in filtros_conta and reg['coluna'] in filtros_coluna:
-            soma += reg['valor']
-    return soma
+            valor_reg = reg['valor']
+            soma += valor_reg
+            # Acumula o valor para a conta específica no dicionário de detalhes
+            detalhes[reg['conta']] += valor_reg
+            
+    return soma, detalhes
 
 
 def analisar_operacao(ano, valor_requisitado=0.0):
@@ -110,15 +176,24 @@ def analisar_operacao(ano, valor_requisitado=0.0):
         regra_ouro_anterior = RegraDeOuroAnoAnterior(ano, dados_rreo, dados_rgf, valor_requisitado)
         
         # Avalia a regra
-        resultado_regra = regra_ouro_anterior.avaliar()
+        resultado_regra_anterior = regra_ouro_anterior.avaliar()
         
         print("\nResultado da 'Regra de Ouro - Ano Anterior':")
-        print(resultado_regra)
+        print(resultado_regra_anterior)
+        
+        # Instancia e avalia a SEGUNDA regra
+        regra_ouro_atual = RegraDeOuroAnoAtual(ano, dados_rreo, dados_rgf, valor_requisitado)
+        resultado_regra_atual = regra_ouro_atual.avaliar()
+
+        print("\nResultado da 'Regra de Ouro - Ano Atual':")
+        print(resultado_regra_atual)
         print("--------------------------\n")
         
-        # No futuro, faremos isso para todas as regras e usaremos o YAML para formatar o resultado
-        
-        return {"status": "Análise concluída com sucesso.", "resultado_teste": resultado_regra}
+        return {
+            "status": "Análise concluída com sucesso.", 
+            "resultado_anterior": resultado_regra_anterior,
+            "resultado_atual": resultado_regra_atual
+        }
 
     except Exception as e:
         print(f"Erro na análise da operação: {e}")

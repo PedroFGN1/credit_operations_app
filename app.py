@@ -13,7 +13,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_models import Base, db
 from rule_engine import analisar_operacao, obter_dados_rreo, obter_dados_rgf
-from obsolete.data_updater import importar_operacoes_csv
 from data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
 from config import (
     DATABASE_URL, EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, 
@@ -86,7 +85,7 @@ def analisar_operacao_py(ano, valor_requisitado=0.0):
         logger.error(f"Erro na análise da operação: {e}")
         return {"erro": str(e)}
 
-
+'''
 @eel.expose
 def obter_dados_rreo_py(ano=None):
     """
@@ -108,7 +107,8 @@ def obter_dados_rreo_py(ano=None):
         logger.error(f"Erro ao obter dados RREO: {e}")
         return {"data": [], "erro": str(e)}
 
-
+'''
+'''
 @eel.expose
 def obter_dados_rgf_py(ano=None):
     """
@@ -130,7 +130,7 @@ def obter_dados_rgf_py(ano=None):
         logger.error(f"Erro ao obter dados RGF: {e}")
         return {"data": [], "erro": str(e)}
 
-
+'''
 @eel.expose
 def atualizar_rreo_py(status='now'):
     """
@@ -174,7 +174,7 @@ def atualizar_rgf_py(status='now'):
         logger.error(f"Erro na atualização RGF: {e}")
         return {"message": f"Erro: {str(e)}", "status": "error"}
 
-
+'''
 @eel.expose
 def importar_csv_py(arquivo_path):
     """
@@ -196,7 +196,7 @@ def importar_csv_py(arquivo_path):
         logger.error(f"Erro na importação CSV: {e}")
         return {"message": f"Erro: {str(e)}", "status": "error"}
 
-
+'''
 @eel.expose
 def obter_info_app():
     """
