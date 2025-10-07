@@ -7,20 +7,11 @@ através de APIs externas (Siconfi), extraídas das rotas Flask originais.
 
 import requests
 from datetime import datetime
-from werkzeug.utils import secure_filename
-from config import LOGGING_CONFIG
+from config import configurar_banco_dados, configurar_logging
 from database_models import RREO, RGF, db
 from utils import calcular_bimestre_atual, calcula_quadrimestre_atual
-import logging
-import logging.config
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_, or_
-
-def configurar_logging():
-    """Configura o sistema de logging da aplicação."""
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger(__name__)
-    return logger
 
 logger = configurar_logging()
 
@@ -297,28 +288,9 @@ def atualizar_operacoes_rgf(status='now'):
         return {"message": f"Erro geral: {str(e)}", "sucessos": [], "falhas": [], "status": "error"}
 
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from config import DATABASE_URL
-
-def configurar_banco_dados():
-    """Configura e inicializa o banco de dados SQLAlchemy."""
-    try:
-        engine = create_engine(DATABASE_URL, echo=False)
-        Session = sessionmaker(bind=engine)
-        db.session = Session()
-        # Cria tabelas se não existirem
-        from database_models import Base
-        Base.metadata.create_all(engine)
-        logger.info("Banco de dados configurado com sucesso")
-        return True
-    except Exception as e:
-        logger.error(f"Erro ao configurar banco de dados: {e}")
-        return False
-
 if __name__ == "__main__":
     # Configura banco de dados
-    if not configurar_banco_dados():
+    if not configurar_banco_dados(logger):
         print("Falha na configuração do banco de dados.")
         exit(1)
 

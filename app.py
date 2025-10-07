@@ -13,8 +13,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_models import Base, db
 from rule_engine import analisar_operacao, obter_dados_rreo, obter_dados_rgf
-from data_updater import importar_operacoes_csv
-from novo_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
+from obsolete.data_updater import importar_operacoes_csv
+from data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
 from config import (
     DATABASE_URL, EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, 
     APP_NAME, APP_VERSION, LOGGING_CONFIG, criar_diretorios, BASE_DIR
