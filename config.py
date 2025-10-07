@@ -79,3 +79,31 @@ def carregar_modelo_yaml():
     except Exception as e:
         print(f"Erro ao carregar modelo.yaml: {e}")
         return {}
+
+import logging
+import logging.config
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from database_models import db
+
+def configurar_logging():
+    """Configura o sistema de logging da aplicação."""
+    logging.config.dictConfig(LOGGING_CONFIG)
+    logger = logging.getLogger(__name__)
+    return logger
+
+def configurar_banco_dados(logger):
+    """Configura e inicializa o banco de dados SQLAlchemy."""
+    try:
+        engine = create_engine(DATABASE_URL, echo=False)
+        Session = sessionmaker(bind=engine)
+        db.session = Session()
+        # Cria tabelas se não existirem
+        from database_models import Base
+        Base.metadata.create_all(engine)
+        logger.info("Banco de dados configurado com sucesso")
+        return True
+    except Exception as e:
+        logger.error(f"Erro ao configurar banco de dados: {e}")
+        return False
+
