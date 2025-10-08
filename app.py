@@ -1,238 +1,123 @@
 """
 Aplicação Principal - Simulador de Operações de Crédito v2
 
-Este é o arquivo principal da aplicação migrada de Flask para Eel.
-Contém a inicialização do Eel, configuração do banco de dados e
-exposição das funções Python para o frontend JavaScript.
+Este é o arquivo principal da aplicação. Atua como a "ponte" entre o
+backend (motor de regras, acesso a dados) e o frontend (JavaScript/Eel).
 """
 
 import eel
-import logging
-import logging.config
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from database_models import Base, db
-from rule_engine import analisar_operacao, obter_dados_rreo, obter_dados_rgf
+from sqlalchemy import func
+
+# Módulos da nossa arquitetura
+from rule_engine_new import analisar_operacao
 from data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
+from database_models import db, RREO
+
+# Módulos de configuração
 from config import (
-    DATABASE_URL, EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, 
-    APP_NAME, APP_VERSION, LOGGING_CONFIG, criar_diretorios, BASE_DIR
+    EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, APP_NAME, APP_VERSION, 
+    criar_diretorios, configurar_banco_dados, configurar_logging
 ) 
 
+# --- CONFIGURAÇÃO INICIAL DA APLICAÇÃO ---
 
-def configurar_logging():
-    """Configura o sistema de logging da aplicação."""
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger(__name__)
-    logger.info(f"Iniciando {APP_NAME} v{APP_VERSION}")
-    return logger
-
-
-def configurar_banco_dados():
-    """Configura e inicializa o banco de dados SQLAlchemy."""
-    try:
-        # Criar engine do SQLAlchemy
-        engine = create_engine(DATABASE_URL, echo=False)
-        
-        # Configurar sessão global
-        Session = sessionmaker(bind=engine)
-        db.session = Session()
-        
-        # Criar tabelas se não existirem
-        Base.metadata.create_all(engine)
-        
-        logger.info("Banco de dados configurado com sucesso")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Erro ao configurar banco de dados: {e}")
-        return False
-
-
-# Configurar logging
 logger = configurar_logging()
-
-# Criar diretórios necessários
 criar_diretorios()
 
-# Configurar banco de dados
-if not configurar_banco_dados():
+if not configurar_banco_dados(logger):
     logger.error("Falha na configuração do banco de dados. Encerrando aplicação.")
     exit(1)
 
 
-# ========== FUNÇÕES EXPOSTAS PARA O FRONTEND ==========
+# ========== FUNÇÕES EXPOSTAS PARA O FRONTEND (API INTERNA) ==========
 
 @eel.expose
-def analisar_operacao_py(ano, valor_requisitado=0.0):
+def obter_dados_iniciais():
     """
-    Função exposta para análise de operações de crédito.
-    
-    Args:
-        ano (int): Ano da operação
-        valor_requisitado (float): Valor requisitado
-        
-    Returns:
-        dict: Dados da análise
+    Busca informações iniciais para popular o frontend, como a lista de anos
+    disponíveis para análise no banco de dados.
     """
     try:
-        logger.info(f"Analisando operação - Ano: {ano}, Valor: {valor_requisitado}")
+        logger.info("Buscando dados iniciais para o frontend...")
+        # Busca todos os anos distintos presentes na tabela RREO
+        anos_query = db.session.query(RREO.exercicio).distinct().order_by(RREO.exercicio.desc()).all()
+        anos_disponiveis = [ano[0] for ano in anos_query]
+        logger.info(f"Anos disponíveis encontrados: {anos_disponiveis}")
+        
+        return {
+            "status": "sucesso",
+            "anos_disponiveis": anos_disponiveis
+        }
+    except Exception as e:
+        logger.error(f"Erro ao obter dados iniciais: {e}")
+        return {"status": "erro", "mensagem": str(e), "anos_disponiveis": []}
+
+@eel.expose
+def analisar_operacao_py(ano: int, valor_requisitado: float):
+    """
+    Ponto de entrada principal para executar o motor de regras e retornar a análise completa.
+    """
+    try:
+        logger.info(f"Recebido pedido de análise - Ano: {ano}, Valor: {valor_requisitado}")
+        # Esta chamada agora invoca nosso orquestrador inteligente
         resultado = analisar_operacao(ano, valor_requisitado)
-        logger.info("Análise concluída com sucesso")
+        logger.info("Análise via orquestrador concluída com sucesso.")
         return resultado
-        
     except Exception as e:
-        logger.error(f"Erro na análise da operação: {e}")
-        return {"erro": str(e)}
+        logger.error(f"Erro ao executar 'analisar_operacao': {e}", exc_info=True)
+        return {"status": "erro", "mensagem": f"Ocorreu um erro crítico no backend: {e}"}
 
-'''
-@eel.expose
-def obter_dados_rreo_py(ano=None):
-    """
-    Função exposta para obter dados RREO.
-    
-    Args:
-        ano (int): Ano para filtrar
-        
-    Returns:
-        dict: Dados RREO
-    """
-    try:
-        logger.info(f"Obtendo dados RREO - Ano: {ano}")
-        resultado = obter_dados_rreo(ano)
-        logger.info("Dados RREO obtidos com sucesso")
-        return resultado
-        
-    except Exception as e:
-        logger.error(f"Erro ao obter dados RREO: {e}")
-        return {"data": [], "erro": str(e)}
-
-'''
-'''
-@eel.expose
-def obter_dados_rgf_py(ano=None):
-    """
-    Função exposta para obter dados RGF.
-    
-    Args:
-        ano (int): Ano para filtrar
-        
-    Returns:
-        dict: Dados RGF
-    """
-    try:
-        logger.info(f"Obtendo dados RGF - Ano: {ano}")
-        resultado = obter_dados_rgf(ano)
-        logger.info("Dados RGF obtidos com sucesso")
-        return resultado
-        
-    except Exception as e:
-        logger.error(f"Erro ao obter dados RGF: {e}")
-        return {"data": [], "erro": str(e)}
-
-'''
 @eel.expose
 def atualizar_rreo_py(status='now'):
     """
-    Função exposta para atualizar dados RREO via API.
-    
-    Args:
-        status (str): 'now' ou 'all'
-        
-    Returns:
-        dict: Resultado da atualização
+    Dispara a rotina de atualização dos dados do RREO a partir da API do Siconfi.
     """
     try:
-        logger.info(f"Atualizando dados RREO - Status: {status}")
+        logger.info(f"Disparando atualização RREO - Status: {status}")
         resultado = atualizar_operacoes_rreo(status)
-        logger.info("Atualização RREO concluída")
+        logger.info("Atualização RREO concluída.")
         return resultado
-        
     except Exception as e:
-        logger.error(f"Erro na atualização RREO: {e}")
+        logger.error(f"Erro na atualização RREO: {e}", exc_info=True)
         return {"message": f"Erro: {str(e)}", "status": "error"}
-
 
 @eel.expose
 def atualizar_rgf_py(status='now'):
     """
-    Função exposta para atualizar dados RGF via API.
-    
-    Args:
-        status (str): 'now' ou 'all'
-        
-    Returns:
-        dict: Resultado da atualização
+    Dispara a rotina de atualização dos dados do RGF a partir da API do Siconfi.
     """
     try:
-        logger.info(f"Atualizando dados RGF - Status: {status}")
+        logger.info(f"Disparando atualização RGF - Status: {status}")
         resultado = atualizar_operacoes_rgf(status)
-        logger.info("Atualização RGF concluída")
+        logger.info("Atualização RGF concluída.")
         return resultado
-        
     except Exception as e:
-        logger.error(f"Erro na atualização RGF: {e}")
+        logger.error(f"Erro na atualização RGF: {e}", exc_info=True)
         return {"message": f"Erro: {str(e)}", "status": "error"}
 
-'''
-@eel.expose
-def importar_csv_py(arquivo_path):
-    """
-    Função exposta para importar dados de CSV.
-    
-    Args:
-        arquivo_path (str): Caminho do arquivo
-        
-    Returns:
-        dict: Resultado da importação
-    """
-    try:
-        logger.info(f"Importando CSV: {arquivo_path}")
-        resultado = importar_operacoes_csv(arquivo_path)
-        logger.info("Importação CSV concluída")
-        return resultado
-        
-    except Exception as e:
-        logger.error(f"Erro na importação CSV: {e}")
-        return {"message": f"Erro: {str(e)}", "status": "error"}
-
-'''
 @eel.expose
 def obter_info_app():
     """
-    Função exposta para obter informações da aplicação.
-    
-    Returns:
-        dict: Informações da aplicação
+    Retorna informações básicas sobre a aplicação.
     """
-    return {
-        "nome": APP_NAME,
-        "versao": APP_VERSION,
-        "status": "ativo"
-    }
+    return { "nome": APP_NAME, "versao": APP_VERSION }
 
+
+# As funções obter_dados_rreo_py e obter_dados_rgf_py foram removidas,
+# pois a nova função analisar_operacao_py já orquestra toda a busca de dados
+# necessária de forma interna e mais eficiente.
+
+# A função de importação de CSV pode ser adicionada aqui se você
+# planeja ter um botão no frontend para upload de arquivos.
 
 def main():
     """Função principal para inicializar a aplicação Eel."""
     try:
-        logger.info("Inicializando interface Eel")
-        
-        # Inicializar Eel
-        eel.init(str(BASE_DIR / EEL_WEB_FOLDER))
-        
-        # Iniciar aplicação
-        logger.info(f"Iniciando aplicação em {EEL_WEB_FOLDER}/main.html")
-        eel.start(
-            'main.html',
-            size=EEL_SIZE,
-            position=EEL_POSITION,
-            disable_cache=True
-        )
-        
+        eel.init(EEL_WEB_FOLDER)
+        logger.info(f"Aplicação '{APP_NAME} v{APP_VERSION}' iniciando...")
+        eel.start('main.html', size=EEL_SIZE, position=EEL_POSITION)
     except Exception as e:
-        logger.error(f"Erro ao inicializar aplicação: {e}")
-        raise
-
+        logger.critical(f"Não foi possível iniciar a aplicação Eel: {e}", exc_info=True)
 
 if __name__ == '__main__':
     main()

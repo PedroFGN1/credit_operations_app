@@ -106,13 +106,14 @@ class RegraDeOuroAnoAtual(RegraDeNegocio):
 
         # Lógica da regra
         limite_disponivel = despesas_capital_total - operacoes_credito_total
-        aprovado = limite_disponivel >= 0
+        aprovado = limite_disponivel >= self.valor_requisitado
         
         # Retorno padronizado
         return {
             'aprovado': aprovado,
             'dados_calculados': {
                 'limite_disponivel': limite_disponivel,
+                'valor_requisitado_na_analise': self.valor_requisitado,
                 'despesas_capital': {
                     'total': despesas_capital_total,
                     'detalhe': despesas_capital_detalhe
@@ -167,7 +168,6 @@ def _formatar_resultado_regra(nome_regra, regra_info, resultado_avaliacao):
 REGISTRY = {
     "Regra_de_Ouro_Ano_Anterior": RegraDeOuroAnoAnterior,
     "Regra_de_Ouro_Ano_Atual": RegraDeOuroAnoAtual,
-    # Adicionaremos as outras classes de regra aqui conforme as criamos...
 }
 
 
@@ -232,7 +232,7 @@ def analisar_operacao(ano, valor_requisitado=0.0):
             "status": "Análise completa.",
             "regras_cumpridas": regras_cumpridas,
             "regras_violadas": regras_violadas,
-            # Você pode adicionar outros dados globais aqui se o frontend precisar
+            # outros dados globais se o frontend precisar
         }
     except Exception as e:
         print(f"Erro fatal na análise da operação: {e}")
