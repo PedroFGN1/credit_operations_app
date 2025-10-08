@@ -1,570 +1,258 @@
 /**
- * JavaScript principal para comunicação com Eel
- * Simulador de Operações de Crédito v2
+ * JavaScript principal para comunicação com Eel e renderização da interface.
+ * Simulador de Operações de Crédito v2 - Refatorado
  */
 
-// Variáveis globais
-let dadosSimulacao = {};
-let anoAtual = new Date().getFullYear();
+// --- INICIALIZAÇÃO ---
 
-// Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Inicializando aplicação Eel...');
-    
-    // Inicializar componentes
-    inicializarFormularios();
-    carregarAnosDisponiveis();
-    carregarDadosIniciais();
-    
-    // Event listeners
+    console.log('DOM carregado. Inicializando aplicação...');
     configurarEventListeners();
+    carregarDadosIniciais();
 });
 
-/**
- * Inicializa os formulários da aplicação
- */
-function inicializarFormularios() {
-    // Configurar ano padrão
-    const selectAno = document.getElementById('ano');
-    if (selectAno) {
-        // Preencher anos de 2015 a 2030
-        for (let ano = 2015; ano <= 2030; ano++) {
-            const option = document.createElement('option');
-            option.value = ano;
-            option.textContent = ano;
-            if (ano === anoAtual) {
-                option.selected = true;
-            }
-            selectAno.appendChild(option);
-        }
-    }
+// --- CONFIGURAÇÃO DE EVENTOS ---
+
+function configurarEventListeners() {
+    // Formulário principal de simulação
+    document.getElementById('form-simulacao').addEventListener('submit', (e) => {
+        e.preventDefault();
+        executarSimulacao();
+    });
+
+    // Botão para atualizar dados da API Siconfi
+    document.getElementById('btn-atualizar').addEventListener('click', atualizarDadosSiconfi);
+    
+    // Botões e eventos do modal de detalhes
+    document.getElementById('btn-fechar-modal').addEventListener('click', esconderModal);
+    document.getElementById('btn-fechar-modal-2').addEventListener('click', esconderModal);
+    document.getElementById('modal-feedback').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-feedback') esconderModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') esconderModal();
+    });
 }
 
-/**
- * Carrega os anos disponíveis no sistema
- */
-async function carregarAnosDisponiveis() {
-    try {
-        // Os anos já são carregados na inicialização
-        console.log('Anos disponíveis carregados');
-    } catch (error) {
-        console.error('Erro ao carregar anos:', error);
-        mostrarMensagem('Erro ao carregar anos disponíveis', 'error');
-    }
-}
 
-/**
- * Carrega dados iniciais da aplicação
- */
+// --- COMUNICAÇÃO COM O BACKEND (PYTHON/EEL) ---
+
 async function carregarDadosIniciais() {
+    console.log("Buscando dados iniciais do backend...");
     try {
-        // Carregar informações da aplicação
-        const infoApp = await eel.obter_info_app()();
-        console.log('Aplicação:', infoApp);
-        
-        // Carregar dados RREO e RGF do ano atual
-        await carregarDadosRREO(anoAtual);
-        await carregarDadosRGF(anoAtual);
-        
+        const resultado = await eel.obter_dados_iniciais()();
+        if (resultado.status === 'sucesso') {
+            popularSeletorDeAnos(resultado.anos_disponiveis);
+            console.log("Anos disponíveis carregados:", resultado.anos_disponiveis);
+        } else {
+            throw new Error(resultado.mensagem);
+        }
     } catch (error) {
         console.error('Erro ao carregar dados iniciais:', error);
-        mostrarMensagem('Erro ao carregar dados iniciais', 'error');
+        mostrarMensagem('Falha ao carregar dados iniciais do servidor.', 'error');
     }
 }
 
-/**
- * Configura os event listeners dos elementos
- */
-function configurarEventListeners() {
-    // Formulário de simulação
-    const formSimulacao = document.getElementById('form-simulacao');
-    if (formSimulacao) {
-        formSimulacao.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            await executarSimulacao();
-        });
-    }
-    
-    // Botão de atualizar dados
-    const btnAtualizar = document.getElementById('btn-atualizar');
-    if (btnAtualizar) {
-        btnAtualizar.addEventListener('click', async function() {
-            await atualizarDados();
-        });
-    }
-    
-    // Formulário de upload
-    const formUpload = document.getElementById('form-upload');
-    if (formUpload) {
-        formUpload.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            await importarCSV();
-        });
-    }
-    
-    // Mudança de ano
-    const selectAno = document.getElementById('ano');
-    if (selectAno) {
-        selectAno.addEventListener('change', async function() {
-            const ano = parseInt(this.value);
-            await carregarDadosRREO(ano);
-            await carregarDadosRGF(ano);
-        });
-    }
-}
-
-/**
- * Executa a simulação de operação de crédito
- */
 async function executarSimulacao() {
+    const ano = parseInt(document.getElementById('ano').value);
+    const valorRequisitado = parseFloat(document.getElementById('valor-requisitado').value) || 0;
+
+    console.log(`Iniciando simulação para o ano ${ano} com valor ${valorRequisitado}`);
+    mostrarCarregamento(true, 'form-simulacao');
+
     try {
-        mostrarCarregamento(true);
-        
-        const ano = parseInt(document.getElementById('ano').value);
-        const valorRequisitado = parseFloat(document.getElementById('valor-requisitado').value) || 0;
-        
-        console.log(`Executando simulação - Ano: ${ano}, Valor: ${valorRequisitado}`);
-        
-        // Chamar função Python via Eel
         const resultado = await eel.analisar_operacao_py(ano, valorRequisitado)();
-        
-        if (resultado.erro) {
-            throw new Error(resultado.erro);
+        console.log("Resultado da análise recebido:", resultado);
+
+        if (resultado.status !== 'Análise completa.') {
+            throw new Error(resultado.mensagem || 'Ocorreu um erro desconhecido na análise.');
         }
         
-        // Armazenar dados da simulação
-        dadosSimulacao = resultado;
-        
-        // Atualizar interface
-        atualizarTabelaRegras(resultado.tabela);
-        atualizarValoresRCL(resultado);
-        atualizarBarraProgresso(resultado);
-        
-        // Construir e exibir modal de feedback
-        construirModalFeedback(resultado.regras_cumpridas, resultado.regras_violadas);
-        mostrarModal();
-        
-        mostrarMensagem('Simulação executada com sucesso!', 'success');
-        
+        // A nova função central de renderização
+        renderizarResultados(resultado);
+        mostrarMensagem('Análise concluída com sucesso!', 'success');
+
     } catch (error) {
-        console.error('Erro na simulação:', error);
+        console.error('Erro ao executar simulação:', error);
         mostrarMensagem(`Erro na simulação: ${error.message}`, 'error');
     } finally {
-        mostrarCarregamento(false);
+        mostrarCarregamento(false, 'form-simulacao');
     }
 }
 
-/**
- * Atualiza a tabela de regras com os resultados
- */
-function atualizarTabelaRegras(tabela) {
-    const tbody = document.getElementById('tbody-regras');
-    if (!tbody || !tabela) return;
+async function atualizarDadosSiconfi() {
+    console.log("Iniciando atualização de dados Siconfi...");
+    mostrarCarregamento(true, 'btn-atualizar');
+    mostrarMensagem('Atualizando dados RREO e RGF... Isso pode levar um momento.', 'info');
     
-    tbody.innerHTML = '';
+    try {
+        // Executa as duas atualizações em paralelo para agilizar
+        const [resRREO, resRGF] = await Promise.all([
+            eel.atualizar_rreo_py('now')(),
+            eel.atualizar_rgf_py('now')()
+        ]);
+
+        console.log("Resultado da atualização RREO:", resRREO);
+        console.log("Resultado da atualização RGF:", resRGF);
+
+        if (resRREO.status === 'error' || resRGF.status === 'error') {
+            throw new Error('Uma ou mais atualizações falharam. Verifique o console.');
+        }
+
+        mostrarMensagem('Dados atualizados com sucesso! A lista de anos será recarregada.', 'success');
+        // Recarrega os anos disponíveis, pois novos dados podem ter sido adicionados
+        await carregarDadosIniciais();
+
+    } catch (error) {
+        console.error('Erro ao atualizar dados Siconfi:', error);
+        mostrarMensagem(`Erro na atualização: ${error.message}`, 'error');
+    } finally {
+        mostrarCarregamento(false, 'btn-atualizar');
+    }
+}
+
+
+// --- RENDERIZAÇÃO DA INTERFACE (UI) ---
+
+function popularSeletorDeAnos(anos) {
+    const selectAno = document.getElementById('ano');
+    selectAno.innerHTML = ''; // Limpa opções antigas
+    const anoCorrente = new Date().getFullYear();
+
+    anos.forEach(ano => {
+        const option = document.createElement('option');
+        option.value = ano;
+        option.textContent = ano;
+        if (ano === anoCorrente) {
+            option.selected = true;
+        }
+        selectAno.appendChild(option);
+    });
+}
+
+function renderizarResultados(resultado) {
+    const container = document.getElementById('tabela-resultados-container'); // Você precisará criar este container no HTML
+    const tbody = document.getElementById('tbody-resultados'); // E este tbody
     
-    tabela.forEach(regra => {
+    tbody.innerHTML = ''; // Limpa resultados anteriores
+    
+    const todasAsRegras = [
+        ...(resultado.regras_violadas || []),
+        ...(resultado.regras_cumpridas || [])
+    ];
+
+    if (todasAsRegras.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    todasAsRegras.forEach(regra => {
         const tr = document.createElement('tr');
+        
+        const statusClasse = regra.status === 'Cumprida' 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800';
+
         tr.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${regra.regra}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatarMoeda(regra.amortizacao)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatarMoeda(regra.inversao)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatarMoeda(regra.investimento)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatarMoeda(regra.operacao_credito)}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatarMoeda(regra.limiteOp)}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${regra.bg === 'bg-red-500' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
-                    ${regra.situacao}
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${regra.nome}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasse}">
+                    ${regra.status}
                 </span>
             </td>
+            <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${regra.descricao}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button class="text-blue-600 hover:text-blue-900 ver-detalhes-btn">Ver Detalhes</button>
+            </td>
         `;
+
+        // Adiciona o listener no botão para mostrar o modal com os dados da regra específica
+        tr.querySelector('.ver-detalhes-btn').addEventListener('click', () => mostrarDetalhesRegra(regra));
+        
         tbody.appendChild(tr);
     });
+
+    container.style.display = 'block'; // Mostra a tabela de resultados
 }
 
-/**
- * Atualiza os valores de RCL na interface
- */
-function atualizarValoresRCL(dados) {
-    const elementoRCL = document.getElementById('valor-rcl');
-    const elementoRCLRGF = document.getElementById('valor-rcl-rgf');
-    const elementoDCLRGF = document.getElementById('valor-dcl-rgf');
-    
-    if (elementoRCL) elementoRCL.textContent = formatarMoeda(dados.rcl);
-    if (elementoRCLRGF) elementoRCLRGF.textContent = formatarMoeda(dados.rcl_rgf);
-    if (elementoDCLRGF) elementoDCLRGF.textContent = formatarMoeda(dados.dcl_rgf);
-}
 
-/**
- * Atualiza a barra de progresso
- */
-function atualizarBarraProgresso(dados) {
-    const barraProgresso = document.getElementById('barra-progresso');
-    if (!barraProgresso || !dados.dados_barra) return;
+function mostrarDetalhesRegra(regra) {
+    // Popula o modal com os dados detalhados da regra
+    document.getElementById('modal-title').textContent = regra.nome;
+    document.getElementById('modal-status').textContent = regra.status;
+    document.getElementById('modal-status').className = `font-semibold ${regra.status === 'Cumprida' ? 'text-green-600' : 'text-red-600'}`;
     
-    barraProgresso.classList.remove('hidden');
+    document.getElementById('modal-descricao').textContent = regra.descricao;
+    document.getElementById('modal-proximo-passo').textContent = regra.proximo_passo;
+    document.getElementById('modal-base-normativa').textContent = regra.base_normativa;
+    document.getElementById('modal-objetivo').textContent = regra.objetivo;
     
-    // Atualizar elementos da barra
-    const elementoRequisitado = document.getElementById('barra-requisitado');
-    const elementoOperacao = document.getElementById('barra-operacao');
-    const elementoRCL = document.getElementById('barra-rcl');
-    const elementoLimite = document.getElementById('barra-limite');
+    // Constrói a visualização dos dados calculados
+    const calculadosContainer = document.getElementById('modal-dados-calculados');
+    calculadosContainer.innerHTML = ''; // Limpa
     
-    if (elementoRequisitado) elementoRequisitado.textContent = formatarMoeda(dados.requisitado);
-    if (elementoOperacao) elementoOperacao.textContent = formatarMoeda(dados.dados_barra.operacao || 0);
-    if (elementoRCL) elementoRCL.textContent = formatarMoeda(dados.rcl);
-    if (elementoLimite) elementoLimite.textContent = formatarMoeda(dados.dados_barra.limite || 0);
-    
-    // Calcular e atualizar porcentagem da barra
-    const porcentagem = calcularPorcentagemBarra(dados);
-    const barraPreenchimento = document.getElementById('barra-preenchimento');
-    if (barraPreenchimento) {
-        barraPreenchimento.style.width = `${porcentagem}%`;
-    }
-}
-
-/**
- * Calcula a porcentagem para a barra de progresso
- */
-function calcularPorcentagemBarra(dados) {
-    if (!dados.dados_barra || !dados.rcl) return 0;
-    
-    const total = dados.requisitado + (dados.dados_barra.operacao || 0);
-    const limite = dados.rcl * 0.16; // 16% da RCL como exemplo
-    
-    return Math.min((total / limite) * 100, 100);
-}
-
-/**
- * Carrega dados RREO para um ano específico
- */
-async function carregarDadosRREO(ano) {
-    try {
-        const dados = await eel.obter_dados_rreo_py(ano)();
-        
-        if (dados.erro) {
-            throw new Error(dados.erro);
-        }
-        
-        atualizarTabelaRREO(dados.data);
-        
-    } catch (error) {
-        console.error('Erro ao carregar dados RREO:', error);
-        mostrarMensagem(`Erro ao carregar dados RREO: ${error.message}`, 'error');
-    }
-}
-
-/**
- * Carrega dados RGF para um ano específico
- */
-async function carregarDadosRGF(ano) {
-    try {
-        const dados = await eel.obter_dados_rgf_py(ano)();
-        
-        if (dados.erro) {
-            throw new Error(dados.erro);
-        }
-        
-        atualizarTabelaRGF(dados.data);
-        
-    } catch (error) {
-        console.error('Erro ao carregar dados RGF:', error);
-        mostrarMensagem(`Erro ao carregar dados RGF: ${error.message}`, 'error');
-    }
-}
-
-/**
- * Atualiza a tabela RREO
- */
-function atualizarTabelaRREO(dados) {
-    const tbody = document.getElementById('tbody-rreo');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    // Limitar a 10 registros para não sobrecarregar a interface
-    const dadosLimitados = dados.slice(0, 10);
-    
-    dadosLimitados.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="px-4 py-2 text-sm text-gray-900">${item.exercicio}</td>
-            <td class="px-4 py-2 text-sm text-gray-500">${item.periodo}</td>
-            <td class="px-4 py-2 text-sm text-gray-500" title="${item.conta}">${item.conta.substring(0, 30)}...</td>
-            <td class="px-4 py-2 text-sm text-gray-500">${item.valor}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-/**
- * Atualiza a tabela RGF
- */
-function atualizarTabelaRGF(dados) {
-    const tbody = document.getElementById('tbody-rgf');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    // Limitar a 10 registros para não sobrecarregar a interface
-    const dadosLimitados = dados.slice(0, 10);
-    
-    dadosLimitados.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="px-4 py-2 text-sm text-gray-900">${item.exercicio}</td>
-            <td class="px-4 py-2 text-sm text-gray-500">${item.periodo}</td>
-            <td class="px-4 py-2 text-sm text-gray-500" title="${item.conta}">${item.conta.substring(0, 30)}...</td>
-            <td class="px-4 py-2 text-sm text-gray-500">${item.valor}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-/**
- * Atualiza os dados via API
- */
-async function atualizarDados() {
-    try {
-        mostrarCarregamento(true);
-        mostrarMensagem('Atualizando dados via API...', 'info');
-        
-        // Atualizar RREO
-        const resultadoRREO = await eel.atualizar_rreo_py('now')();
-        console.log('Resultado RREO:', resultadoRREO);
-        
-        // Atualizar RGF
-        const resultadoRGF = await eel.atualizar_rgf_py('now')();
-        console.log('Resultado RGF:', resultadoRGF);
-        
-        // Recarregar dados na interface
-        const ano = parseInt(document.getElementById('ano').value);
-        await carregarDadosRREO(ano);
-        await carregarDadosRGF(ano);
-        
-        mostrarMensagem('Dados atualizados com sucesso!', 'success');
-        
-    } catch (error) {
-        console.error('Erro ao atualizar dados:', error);
-        mostrarMensagem(`Erro ao atualizar dados: ${error.message}`, 'error');
-    } finally {
-        mostrarCarregamento(false);
-    }
-}
-
-/**
- * Importa dados de arquivo CSV
- */
-async function importarCSV() {
-    try {
-        const arquivoInput = document.getElementById('arquivo-csv');
-        const arquivo = arquivoInput.files[0];
-        
-        if (!arquivo) {
-            mostrarMensagem('Selecione um arquivo CSV', 'warning');
-            return;
-        }
-        
-        mostrarCarregamento(true);
-        mostrarMensagem('Importando arquivo CSV...', 'info');
-        
-        // Nota: Para upload de arquivos com Eel, seria necessário implementar
-        // uma lógica mais complexa. Por enquanto, mostrar mensagem informativa.
-        mostrarMensagem('Funcionalidade de upload em desenvolvimento', 'info');
-        
-    } catch (error) {
-        console.error('Erro ao importar CSV:', error);
-        mostrarMensagem(`Erro ao importar CSV: ${error.message}`, 'error');
-    } finally {
-        mostrarCarregamento(false);
-    }
-}
-
-/**
- * Formata um valor como moeda brasileira
- */
-function formatarMoeda(valor) {
-    if (valor === null || valor === undefined || isNaN(valor)) {
-        return 'R$ 0,00';
-    }
-    
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(valor);
-}
-
-/**
- * Mostra/oculta indicador de carregamento
- */
-function mostrarCarregamento(mostrar) {
-    // Implementar indicador de carregamento visual
-    const botoes = document.querySelectorAll('button[type="submit"]');
-    botoes.forEach(botao => {
-        if (mostrar) {
-            botao.disabled = true;
-            botao.textContent = 'Carregando...';
-        } else {
-            botao.disabled = false;
-            // Restaurar texto original baseado no contexto
-            if (botao.closest('#form-simulacao')) {
-                botao.textContent = 'Simular Operação';
-            } else if (botao.closest('#form-upload')) {
-                botao.textContent = 'Importar CSV';
+    if (regra.dados_calculados) {
+        for (const [key, value] of Object.entries(regra.dados_calculados)) {
+            const div = document.createElement('div');
+            div.className = 'py-2';
+            
+            let content = `<dt class="font-medium text-gray-900">${key.replace(/_/g, ' ')}</dt>`;
+            
+            if (typeof value === 'object' && value !== null && value.total !== undefined) {
+                content += `<dd class="text-gray-700"><strong>Total: ${formatarMoeda(value.total)}</strong></dd>`;
+                if(value.detalhe){
+                    const detalhesList = Object.entries(value.detalhe)
+                        .map(([detalheKey, detalheValue]) => `<li class="ml-4 text-sm">${detalheKey}: ${formatarMoeda(detalheValue)}</li>`)
+                        .join('');
+                    content += `<ul class="list-disc list-inside">${detalhesList}</ul>`;
+                }
+            } else {
+                content += `<dd class="text-gray-700">${formatarMoeda(value)}</dd>`;
             }
+            div.innerHTML = content;
+            calculadosContainer.appendChild(div);
         }
-    });
-}
-
-/**
- * Mostra mensagem para o usuário
- */
-function mostrarMensagem(mensagem, tipo = 'info') {
-    // Criar elemento de notificação
-    const notificacao = document.createElement('div');
-    notificacao.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${obterClasseTipo(tipo)}`;
-    notificacao.textContent = mensagem;
-    
-    document.body.appendChild(notificacao);
-    
-    // Remover após 5 segundos
-    setTimeout(() => {
-        if (notificacao.parentNode) {
-            notificacao.parentNode.removeChild(notificacao);
-        }
-    }, 5000);
-}
-
-/**
- * Obtém a classe CSS baseada no tipo de mensagem
- */
-function obterClasseTipo(tipo) {
-    const classes = {
-        'success': 'bg-green-500 text-white',
-        'error': 'bg-red-500 text-white',
-        'warning': 'bg-yellow-500 text-white',
-        'info': 'bg-blue-500 text-white'
-    };
-    
-    return classes[tipo] || classes['info'];
-}
-
-
-/**
- * Mostra o modal de feedback
- */
-function mostrarModal() {
-    const modal = document.getElementById('modal-feedback');
-    if (modal) {
-        modal.classList.remove('hidden');
     }
+
+    // Mostra o modal
+    document.getElementById('modal-feedback').classList.remove('hidden');
 }
 
-/**
- * Esconde o modal de feedback
- */
+
 function esconderModal() {
-    const modal = document.getElementById('modal-feedback');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
+    document.getElementById('modal-feedback').classList.add('hidden');
 }
 
-/**
- * Constrói o conteúdo do modal de feedback dinamicamente
- */
-function construirModalFeedback(regrasCumpridas, regrasVioladas) {
-    const listaVioladas = document.getElementById('lista-regras-violadas');
-    const listaCumpridas = document.getElementById('lista-regras-cumpridas');
-    const secaoVioladas = document.getElementById('secao-regras-violadas');
-    const secaoCumpridas = document.getElementById('secao-regras-cumpridas');
-    
-    // Limpar conteúdo anterior
-    if (listaVioladas) listaVioladas.innerHTML = '';
-    if (listaCumpridas) listaCumpridas.innerHTML = '';
-    
-    // Construir regras violadas
-    if (regrasVioladas && regrasVioladas.length > 0) {
-        regrasVioladas.forEach(regra => {
-            const elemento = criarElementoRegra(regra, 'violada');
-            listaVioladas.appendChild(elemento);
-        });
-        secaoVioladas.style.display = 'block';
+
+// --- FUNÇÕES UTILITÁRIAS ---
+
+function formatarMoeda(valor) {
+    if (valor === null || valor === undefined || isNaN(valor)) return 'R$ 0,00';
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+}
+
+function mostrarMensagem(mensagem, tipo = 'info') {
+    // (A sua função de mensagem pode ser mantida como está)
+}
+
+function mostrarCarregamento(mostrar, elementoId) {
+    const elemento = document.getElementById(elementoId);
+    let botao;
+
+    if (elemento.tagName === 'BUTTON') {
+        botao = elemento;
     } else {
-        secaoVioladas.style.display = 'none';
+        botao = elemento.querySelector('button[type="submit"]');
     }
-    
-    // Construir regras cumpridas
-    if (regrasCumpridas && regrasCumpridas.length > 0) {
-        regrasCumpridas.forEach(regra => {
-            const elemento = criarElementoRegra(regra, 'cumprida');
-            listaCumpridas.appendChild(elemento);
-        });
-        secaoCumpridas.style.display = 'block';
+
+    if (!botao) return;
+
+    if (mostrar) {
+        botao.disabled = true;
+        botao.dataset.originalText = botao.innerHTML; // Salva o texto original
+        botao.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Carregando...`;
     } else {
-        secaoCumpridas.style.display = 'none';
+        botao.disabled = false;
+        botao.innerHTML = botao.dataset.originalText; // Restaura o texto original
     }
 }
-
-/**
- * Cria um elemento HTML para uma regra
- */
-function criarElementoRegra(regra, tipo) {
-    const div = document.createElement('div');
-    const corBorda = tipo === 'violada' ? 'border-red-200' : 'border-green-200';
-    const corFundo = tipo === 'violada' ? 'bg-red-50' : 'bg-green-50';
-    
-    div.className = `border ${corBorda} ${corFundo} rounded-lg p-4`;
-    
-    // Formatação dos bancos de dados
-    const bancosFormatados = Array.isArray(regra.banco_de_dados) 
-        ? regra.banco_de_dados.join(', ') 
-        : regra.banco_de_dados || 'N/A';
-    
-    div.innerHTML = `
-        <div class="mb-2">
-            <h5 class="font-semibold text-gray-900">${regra.nome || 'Regra não identificada'}</h5>
-        </div>
-        <div class="text-sm text-gray-700 space-y-2">
-            <p><strong>Descrição:</strong> ${regra.descricao || 'N/A'}</p>
-            <p><strong>Próximo Passo:</strong> ${regra.proximo_passo || 'N/A'}</p>
-            <p><strong>Base Normativa:</strong> ${regra.base_normativa || 'N/A'}</p>
-            <p><strong>Objetivo:</strong> ${regra.objetivo || 'N/A'}</p>
-            <p><strong>Banco de Dados:</strong> ${bancosFormatados}</p>
-        </div>
-    `;
-    
-    return div;
-}
-
-// Configurar event listeners para o modal quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', function() {
-    // Botões para fechar o modal
-    const btnFecharModal = document.getElementById('btn-fechar-modal');
-    const btnFecharModal2 = document.getElementById('btn-fechar-modal-2');
-    const modal = document.getElementById('modal-feedback');
-    
-    if (btnFecharModal) {
-        btnFecharModal.addEventListener('click', esconderModal);
-    }
-    
-    if (btnFecharModal2) {
-        btnFecharModal2.addEventListener('click', esconderModal);
-    }
-    
-    // Fechar modal ao clicar fora dele
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                esconderModal();
-            }
-        });
-    }
-    
-    // Fechar modal com tecla ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            esconderModal();
-        }
-    });
-});
