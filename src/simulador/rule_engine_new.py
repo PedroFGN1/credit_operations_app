@@ -1,11 +1,11 @@
 from datetime import datetime
 # Importe as novas funções de acesso a dados
-from data_access import (
+from .data_access import (
     obter_dados_rreo_para_analise, 
     obter_dados_rgf_para_analise
 )
-from utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
-from config import carregar_modelo_yaml
+from .utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
+from .config import carregar_modelo_yaml
 
 
 # --- CAMADA 2: MOTOR DE REGRAS ---
@@ -289,7 +289,7 @@ def analisar_operacao(ano, valor_requisitado=0.0):
 
 # Configuração para rodar o script diretamente
 
-from config import configurar_banco_dados, configurar_logging
+from .config import configurar_banco_dados, configurar_logging
 
 logger = configurar_logging()
 

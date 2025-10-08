@@ -9,12 +9,12 @@ import eel
 from sqlalchemy import func
 
 # Módulos da nossa arquitetura
-from rule_engine_new import analisar_operacao
-from data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
-from database_models import db, RREO
+from src.simulador.rule_engine_new import analisar_operacao
+from src.simulador.data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
+from src.simulador.database_models import db, RREO
 
 # Módulos de configuração
-from config import (
+from src.simulador.config import (
     EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, APP_NAME, APP_VERSION, 
     criar_diretorios, configurar_banco_dados, configurar_logging
 ) 
@@ -113,7 +113,7 @@ def obter_info_app():
 def main():
     """Função principal para inicializar a aplicação Eel."""
     try:
-        eel.init(EEL_WEB_FOLDER)
+        eel.init(str(EEL_WEB_FOLDER))
         logger.info(f"Aplicação '{APP_NAME} v{APP_VERSION}' iniciando...")
         eel.start('main.html', size=EEL_SIZE, position=EEL_POSITION)
     except Exception as e:

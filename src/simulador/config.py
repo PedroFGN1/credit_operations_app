@@ -10,16 +10,23 @@ import sys
 import yaml
 from pathlib import Path
 
-def get_base_dir():
+def get_asset_path(relative_path):
+    """
+    Obtém o caminho absoluto para um recurso (asset), funcionando tanto em
+    modo de desenvolvimento quanto no executável do PyInstaller.
+    """
     if getattr(sys, 'frozen', False):
-        # Executável PyInstaller
-        return Path(sys.executable).parent
+        # Estamos rodando em um bundle do PyInstaller
+        base_path = Path(sys._MEIPASS)
     else:
-        # Desenvolvimento
-        return Path(__file__).parent.absolute()
+        # Estamos rodando em modo normal
+        # Assumimos que config.py está em src/simulador, então subimos 2 níveis
+        base_path = Path(__file__).resolve().parents[2]
+    
+    return base_path / relative_path
     
 # Diretório base da aplicação
-BASE_DIR = get_base_dir()
+BASE_DIR = get_asset_path('')
 
 # Configurações do banco de dados
 DATABASE_URL = f"sqlite:///{BASE_DIR}/instance/database.db"
@@ -29,7 +36,7 @@ UPLOAD_FOLDER = BASE_DIR / "uploads"
 ALLOWED_EXTENSIONS = {'csv', 'txt', 'xlsx', 'xls'}
 
 # Configurações do Eel
-EEL_WEB_FOLDER = "web"
+EEL_WEB_FOLDER = get_asset_path('src/web')
 EEL_SIZE = (1200, 800)
 EEL_POSITION = "center"
 
@@ -93,7 +100,7 @@ import logging
 import logging.config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_models import db
+from .database_models import db, Base
 
 def configurar_logging():
     """Configura o sistema de logging da aplicação."""
@@ -108,7 +115,6 @@ def configurar_banco_dados(logger):
         Session = sessionmaker(bind=engine)
         db.session = Session()
         # Cria tabelas se não existirem
-        from database_models import Base
         Base.metadata.create_all(engine)
         logger.info("Banco de dados configurado com sucesso")
         return True

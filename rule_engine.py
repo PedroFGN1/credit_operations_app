@@ -8,7 +8,7 @@ extraída das rotas Flask originais e refatorada para uso com Eel.
 from datetime import datetime
 from sqlalchemy import func
 from database_models import RGF, RREO, db
-from utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
+from src.simulador.utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
 from config import carregar_modelo_yaml
 
 

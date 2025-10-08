@@ -7,11 +7,12 @@ através de APIs externas (Siconfi), extraídas das rotas Flask originais.
 
 import requests
 from datetime import datetime
-from config import configurar_banco_dados, configurar_logging
-from database_models import RREO, RGF, db
-from utils import calcular_bimestre_atual, calcula_quadrimestre_atual
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_, or_
+
+from .config import configurar_banco_dados, configurar_logging
+from .database_models import RREO, RGF, db
+from .utils import calcular_bimestre_atual, calcula_quadrimestre_atual
 
 logger = configurar_logging()
 

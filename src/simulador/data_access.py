@@ -6,7 +6,7 @@ em estruturas Python nativas (dicionários e listas) para serem consumidos
 pelo motor de regras.
 """
 from sqlalchemy import func, and_
-from database_models import db, RREO, RGF
+from .database_models import db, RREO, RGF
 
 def obter_dados_rreo_para_analise(ano_corrente: int):
     """
