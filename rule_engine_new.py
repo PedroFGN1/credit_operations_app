@@ -125,6 +125,55 @@ class RegraDeOuroAnoAtual(RegraDeNegocio):
             }
         }
 
+class RegraDeOuroAnoAtual(RegraDeNegocio):
+    """
+    Verifica a projeção da Regra de Ouro para o ano corrente.
+    """
+    def avaliar(self):
+        # Desta vez, usamos os dados do ano corrente
+        dados_ano_corrente = self.dados_rreo.get(self.ano, {}).get('registros', [])
+        
+        if not dados_ano_corrente:
+            return {'aprovado': True, 'dados_calculados': {'mensagem': 'Sem dados para o ano corrente.'}}
+
+        # Filtros para Despesas de Capital (idênticos à regra anterior)
+        colunas_despesa = ['DESPESAS LIQUIDADAS ATÉ O BIMESTRE (h)', 'INSCRITAS EM RESTOS A PAGAR NÃO PROCESSADOS (k)']
+        contas_despesa_capital = ['AMORTIZAÇÃO DA DÍVIDA', 'INVERSÕES FINANCEIRAS', 'INVESTIMENTOS']
+        
+        # Filtros para Operações de Crédito
+        colunas_operacao = ['PREVISÃO ATUALIZADA (a)']
+        contas_operacao_credito = ['OPERAÇÕES DE CRÉDITO']
+
+        # Cálculos usando a função auxiliar
+        despesas_capital_total, despesas_capital_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_corrente, contas_despesa_capital, colunas_despesa
+        )
+        operacoes_credito_total, operacoes_credito_detalhe = _calcular_e_detalhar_soma(
+            dados_ano_corrente, contas_operacao_credito, colunas_operacao
+        )
+
+        # Lógica da regra
+        limite_disponivel = despesas_capital_total - operacoes_credito_total
+        aprovado = limite_disponivel >= self.valor_requisitado
+        
+        # Retorno padronizado
+        return {
+            'aprovado': aprovado,
+            'dados_calculados': {
+                'limite_disponivel': limite_disponivel,
+                'valor_requisitado_na_analise': self.valor_requisitado,
+                'despesas_capital': {
+                    'total': despesas_capital_total,
+                    'detalhe': despesas_capital_detalhe
+                },
+                'operacoes_credito': {
+                    'total': operacoes_credito_total,
+                    'detalhe': operacoes_credito_detalhe
+                }
+            }
+        }
+
+
 
 def _calcular_e_detalhar_soma(registros: list, filtros_conta: list, filtros_coluna: list):
     """

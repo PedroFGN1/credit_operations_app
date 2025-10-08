@@ -77,6 +77,12 @@ credit_operations_app/
 └── app.log                 # Arquivo de log da aplicação
 ```
 
+## Empacotamento Pyinstaller
+Para empacotar o aplicativo em um executável standalone, utilize o PyInstaller com o seguinte comando:
+
+```bash
+   pyinstaller  --noconsole --onefile --add-data="web;web" --add-data="modelo.yaml;." --add-data="rule_engine_new.py;." --add-data="database_models.py;." --name="Operations_Credit_v2.0" app.py
+
 ## Contribuição
 
 No momento não estamos aceitando contribuições externas. No entanto, sinta-se à vontade para abrir issues.

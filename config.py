@@ -6,11 +6,20 @@ incluindo configurações de banco de dados e outras configurações gerais.
 """
 
 import os
+import sys
 import yaml
 from pathlib import Path
 
+def get_base_dir():
+    if getattr(sys, 'frozen', False):
+        # Executável PyInstaller
+        return Path(sys.executable).parent
+    else:
+        # Desenvolvimento
+        return Path(__file__).parent.absolute()
+    
 # Diretório base da aplicação
-BASE_DIR = Path(__file__).parent.absolute()
+BASE_DIR = get_base_dir()
 
 # Configurações do banco de dados
 DATABASE_URL = f"sqlite:///{BASE_DIR}/instance/database.db"
