@@ -4,7 +4,7 @@ from .data_access import (
     obter_dados_rreo_para_analise, 
     obter_dados_rgf_para_analise
 )
-from .utils import validation_credit_operation, bar_data, calcula_quadrimestre_atual, calcular_bimestre_atual
+
 from .config import carregar_modelo_yaml
 
 
@@ -174,7 +174,7 @@ class RegraDeOuroAnoAtual(RegraDeNegocio):
         }
 
 
-
+# --- FUNÇÕES AUXILIARES DO MOTOR DE REGRAS ---
 def _calcular_e_detalhar_soma(registros: list, filtros_conta: list, filtros_coluna: list):
     """
     Função auxiliar que calcula a soma E detalha os componentes dessa soma.
@@ -212,6 +212,7 @@ def _formatar_resultado_regra(nome_regra, regra_info, resultado_avaliacao):
         "dados_calculados": resultado_avaliacao.get('dados_calculados', {})
     }
 
+
 # --- REGISTRO DE REGRAS ---
 # Este dicionário mapeia o nome da regra no YAML para a classe Python correspondente.
 REGISTRY = {
@@ -219,7 +220,7 @@ REGISTRY = {
     "Regra_de_Ouro_Ano_Atual": RegraDeOuroAnoAtual,
 }
 
-
+# --- CAMADA 3: ORQUESTRAÇÃO E INTERFACE PÚBLICA ---
 def analisar_operacao(ano, valor_requisitado=0.0):
     """
     Orquestra a análise de uma operação de crédito.

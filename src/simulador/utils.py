@@ -1,7 +1,6 @@
 from datetime import datetime
 import math
 import re
-import pandas as pd
 
 def tratar_data(valor):
     """
@@ -64,7 +63,7 @@ def detectar_formato_numerico(amostra):
     padrao_internacional = re.compile(r'\d{1,3},\d{3}\.\d{1,2}')  # Ex: 1,234.56
     
     for valor in amostra:
-        if pd.isnull(valor):
+        if valor is None:
             continue
         if padrao_nacional.match(str(valor)):
             return {'decimal': ',', 'thousands': '.'}
@@ -92,78 +91,6 @@ def generate_alert(type, message):
         "message": message
         }
 
-def validation_credit_operation(requisitado, rcl, realizado, limiteRegra2):
-    '''
-    Valida o valor requisitado de operação de crédito para a regra de ouro.
-    Retorna feedback de erro caso o valor exceda e quais regras não foram cumpridas.
-    '''
-    try:
-        operacoes_total = requisitado + realizado
-        disponivel = rcl * 0.16
-
-        violacoes = []
-
-        if operacoes_total > limiteRegra2:
-            violacoes.append('Regra 2: Operação excede o limite estabelecido pela Regra 2.')
-
-        if operacoes_total > disponivel:
-            violacoes.append('Regra 3: Operação excede 16% da Receita Corrente Líquida.')
-
-        if not violacoes:
-            resultado = 'Operação de crédito liberada!'
-        else:
-            resultado = 'Operação de crédito negada!'
-
-        return {
-            "resultado": resultado,
-            "violacoes": violacoes
-        }
-    except Exception as e:
-        return {
-            "erro": f"Ocorreu um erro no tratamento dos dados! {e}"
-        }, 400
-
-def bar_data(requisitado, operacao, rcl, limiteOp):
-    '''
-    Função para calcular o limite final de operações e as porcentagens da largura que cada valor na barra gráfica representa.
-    Formato de retorno:
-        {
-        "limite": 1000000,
-        "largura_entrada": 45.67,
-        "largura_calculado": 32.89
-        }
-    '''
-    # Garantir que rcl e limiteOp são números válidos
-    try:
-        rcl = float(rcl)
-        limiteOp = float(limiteOp)
-        requisitado = float(requisitado)
-        operacao = float(operacao)  
-    except (ValueError, TypeError):
-        return {"erro": "Valores inválidos para rcl ou limiteOp"}
-
-    # Comparação de limites
-    limite_rcl = 0.16 * rcl
-    limite = max(min(limiteOp, limite_rcl), 1)  # Evita limite zero, coloca 1 como fallback mínimo
-
-    # Variáveis de entrada do usuário e valor calculado no banco
-    entrada_usuario = requisitado  # Supondo que vem da requisição
-    valor_calculado = operacao     # Supondo que já foi calculado
-
-    # Evita divisão por zero e calcula largura da barra (em %)
-    largura_entrada = (entrada_usuario / limite * 100) if limite != 0 else 0
-    largura_calculado = (valor_calculado / limite * 100) if limite != 0 else 1
-
-    if largura_calculado < 1: largura_calculado = 1
-
-    # Formata pra mandar pro front
-    dados_barra = {
-        "limite": limite,
-        "largura_contratar": round(largura_entrada, 2),
-        "largura_liberar": round(largura_calculado, 2)
-    }
-    
-    return dados_barra
 
 def calcular_bimestre_atual():
     """Calcula o bimestre atual (1 a 6) baseado no mês."""

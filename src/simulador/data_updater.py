@@ -16,6 +16,7 @@ from .utils import calcular_bimestre_atual, calcula_quadrimestre_atual
 
 logger = configurar_logging()
 
+# ----------- Seção de atualização de dados via API do Siconfi -----------
 
 def _criar_chave_identificadora(item, chaves):
     """Cria uma tupla única para um item com base em um conjunto de chaves."""
@@ -200,7 +201,6 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
     logger.info(f"Processo de atualização para endpoint '{endpoint}' concluído. Total geral de registros inseridos: {TOTAL_INSERIDOS}")
     return sucessos, falhas
 
-
 def atualizar_operacoes_rreo(status='now'):
     """
     Atualiza os dados da tabela RREO através da API do Siconfi.
@@ -211,7 +211,7 @@ def atualizar_operacoes_rreo(status='now'):
             anos = [datetime.now().year]
             bimestre = calcular_bimestre_atual() - 1 if calcular_bimestre_atual() > 1 else 1
         else:
-            anos = list(range(2021, datetime.now().year)) # Corrigido para incluir o ano atual
+            anos = list(range(2021, datetime.now().year)) 
             bimestre = 6
 
         # Parâmetros que não mudam
@@ -253,7 +253,7 @@ def atualizar_operacoes_rgf(status='now'):
             anos = [datetime.now().year]
             quadrimestre = calcula_quadrimestre_atual() -1 if calcula_quadrimestre_atual() > 1 else 1
         else:
-            anos = list(range(2021, datetime.now().year)) # Corrigido para incluir o ano atual
+            anos = list(range(2021, datetime.now().year))
             quadrimestre = 3
         
         # Parâmetros que não mudam
@@ -288,6 +288,12 @@ def atualizar_operacoes_rgf(status='now'):
         logger.exception("Erro geral na atualização RGF")
         return {"message": f"Erro geral: {str(e)}", "sucessos": [], "falhas": [], "status": "error"}
 
+# ------------------------- Fim da Seção Siconfi -------------------------
+
+
+# -------- Seção para incluir upload de CSVs --------
+# Posteriormente será feito um teste entre uso da biblioteca Pandas e CSV padrão do Python - Será avaliado o peso no empacotamento final
+
 
 if __name__ == "__main__":
     # Configura banco de dados
@@ -305,6 +311,6 @@ if __name__ == "__main__":
         print(resultado)
     elif escolha == "2":
         resultado = atualizar_operacoes_rgf(status='past')
-        #print(resultado)
+        print(resultado)
     else:
         print("Opção inválida.")

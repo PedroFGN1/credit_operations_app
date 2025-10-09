@@ -92,8 +92,15 @@ async function atualizarDadosSiconfi() {
             eel.atualizar_rgf_py('now')()
         ]);
 
-        console.log("Resultado da atualização RREO:", resRREO);
-        console.log("Resultado da atualização RGF:", resRGF);
+        const [resRREO2, resRGF2] = await Promise.all([
+            eel.atualizar_rreo_py('all')(),
+            eel.atualizar_rgf_py('all')()
+        ]);
+
+        console.log("Resultado da atualização RREO atual:", resRREO);
+        console.log("Resultado da atualização RGF atual:", resRGF);
+        console.log("Resultado da atualização RREO anterior:", resRREO2);
+        console.log("Resultado da atualização RGF anterior:", resRGF2);
 
         if (resRREO.status === 'error' || resRGF.status === 'error') {
             throw new Error('Uma ou mais atualizações falharam. Verifique o console.');
@@ -232,7 +239,30 @@ function formatarMoeda(valor) {
 }
 
 function mostrarMensagem(mensagem, tipo = 'info') {
-    // (A sua função de mensagem pode ser mantida como está)
+     // Criar elemento de notificação
+    const notificacao = document.createElement('div');
+    notificacao.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${obterClasseTipo(tipo)}`;
+    notificacao.textContent = mensagem;
+    
+    document.body.appendChild(notificacao);
+    
+    // Remover após 5 segundos
+    setTimeout(() => {
+        if (notificacao.parentNode) {
+            notificacao.parentNode.removeChild(notificacao);
+        }
+    }, 5000);
+}
+
+function obterClasseTipo(tipo) {
+    const classes = {
+        'success': 'bg-green-500 text-white',
+        'error': 'bg-red-500 text-white',
+        'warning': 'bg-yellow-500 text-white',
+        'info': 'bg-blue-500 text-white'
+    };
+    
+    return classes[tipo] || classes['info'];
 }
 
 function mostrarCarregamento(mostrar, elementoId) {
