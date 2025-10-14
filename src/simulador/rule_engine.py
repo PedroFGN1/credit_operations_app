@@ -6,7 +6,7 @@ from .data_access import (
 )
 
 from .config import carregar_modelo_yaml
-
+from .logger import log
 
 # --- CAMADA 2: MOTOR DE REGRAS ---
 
@@ -77,7 +77,7 @@ class RegraDeOuroAnoAnterior(RegraDeNegocio):
             }
         }
     
-class RegraDeOuroAnoAtual(RegraDeNegocio):
+class RegraDoDispendio115RCL(RegraDeNegocio):
     """
     Verifica a projeção da Regra de Ouro para o ano corrente.
     """
@@ -131,44 +131,21 @@ class RegraDeOuroAnoAtual(RegraDeNegocio):
     """
     def avaliar(self):
         # Desta vez, usamos os dados do ano corrente
-        dados_ano_corrente = self.dados_rreo.get(self.ano, {}).get('registros', [])
-        
-        if not dados_ano_corrente:
-            return {'aprovado': True, 'dados_calculados': {'mensagem': 'Sem dados para o ano corrente.'}}
-
-        # Filtros para Despesas de Capital (idênticos à regra anterior)
-        colunas_despesa = ['DESPESAS LIQUIDADAS ATÉ O BIMESTRE (h)', 'INSCRITAS EM RESTOS A PAGAR NÃO PROCESSADOS (k)']
-        contas_despesa_capital = ['AMORTIZAÇÃO DA DÍVIDA', 'INVERSÕES FINANCEIRAS', 'INVESTIMENTOS']
-        
-        # Filtros para Operações de Crédito
-        colunas_operacao = ['PREVISÃO ATUALIZADA (a)']
-        contas_operacao_credito = ['OPERAÇÕES DE CRÉDITO']
-
-        # Cálculos usando a função auxiliar
-        despesas_capital_total, despesas_capital_detalhe = _calcular_e_detalhar_soma(
-            dados_ano_corrente, contas_despesa_capital, colunas_despesa
-        )
-        operacoes_credito_total, operacoes_credito_detalhe = _calcular_e_detalhar_soma(
-            dados_ano_corrente, contas_operacao_credito, colunas_operacao
-        )
-
-        # Lógica da regra
-        limite_disponivel = despesas_capital_total - operacoes_credito_total
-        aprovado = limite_disponivel >= self.valor_requisitado
+       
         
         # Retorno padronizado
         return {
-            'aprovado': aprovado,
+            'aprovado': 0,
             'dados_calculados': {
-                'limite_disponivel': limite_disponivel,
+                'limite_disponivel': 0,
                 'valor_requisitado_na_analise': self.valor_requisitado,
                 'despesas_capital': {
-                    'total': despesas_capital_total,
-                    'detalhe': despesas_capital_detalhe
+                    'total': 0,
+                    'detalhe': 0
                 },
                 'operacoes_credito': {
-                    'total': operacoes_credito_total,
-                    'detalhe': operacoes_credito_detalhe
+                    'total': 0,
+                    'detalhe': 0
                 }
             }
         }
@@ -260,9 +237,10 @@ def analisar_operacao(ano, valor_requisitado=0.0):
 
                 if ClasseDaRegra:
                     # 4. Instancia, avalia e formata o resultado
+                    log.info(f"Avaliando regra: '{nome_regra_yaml}'", modulo="rule_engine.py", funcao="analisar_operacao", etapa=etapa_nome)
                     instancia_regra = ClasseDaRegra(ano, dados_rreo, dados_rgf, valor_requisitado)
                     resultado_avaliacao = instancia_regra.avaliar()
-                    
+                    log.debug(f"Resultado da avaliação: {'Aprovado' if resultado_avaliacao['aprovado'] else 'Reprovado'}", modulo="rule_engine.py", funcao="analisar_operacao", regra=nome_regra_yaml, dados_brutos=resultado_avaliacao)
                     resultado_formatado = _formatar_resultado_regra(
                         nome_regra_yaml, regra_info_yaml, resultado_avaliacao
                     )
@@ -285,17 +263,15 @@ def analisar_operacao(ano, valor_requisitado=0.0):
             # outros dados globais se o frontend precisar
         }
     except Exception as e:
-        print(f"Erro fatal na análise da operação: {e}")
+        log.critical(f"Erro fatal na análise da operação: {e}")
         return {"status": f"Erro: {e}", "regras_cumpridas": [], "regras_violadas": []}
 
 # Configuração para rodar o script diretamente
 
-from .config import configurar_banco_dados, configurar_logging
-
-logger = configurar_logging()
+from .config import configurar_banco_dados
 
 if __name__ == "__main__":
-    if not configurar_banco_dados(logger):
+    if not configurar_banco_dados(log):
         print("Falha na configuração do banco de dados.")
         exit(1)
 

@@ -13,8 +13,8 @@ from sqlalchemy import and_, or_
 from .config import configurar_banco_dados, configurar_logging
 from .database_models import RREO, RGF, db
 from .utils import calcular_bimestre_atual, calcula_quadrimestre_atual
+from .logger import log
 
-logger = configurar_logging()
 
 # ----------- Seção de atualização de dados via API do Siconfi -----------
 
@@ -36,7 +36,7 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
     Returns:
         dict: Resultado da operação com sucessos e falhas.
     """
-    TOTAL_INSERIDOS = 0
+    TOTAL_INSERIDOS = 0 # Contador total de registros inseridos
     sucessos, falhas = [], []
     # Define o conteúdo dos registros indesejados para filtragem
     if endpoint == 'rreo':
@@ -84,10 +84,9 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
         url_completa = f"{base_url}?{query_string}"
         
         info_log = ", ".join([f"{k}={v}" for k, v in params_periodo.items()])
-        logger.info(f"Consultando API para {url_completa} - {info_log}")
-        
+        log.info(f"Consultando API Siconfi. {endpoint} - {info_log}", modulo="data_updater.py", funcao="_atualizar_dados_siconfi", endpoint=endpoint, url=url_completa)
         try:
-            print(f"Requisição para {url_completa} com params {params_base}")  # Linha de debug
+            #print(f"Requisição para {url_completa} com params {params_base}")  # Linha de debug
             response = requests.get(url_completa, timeout=30)
             response.raise_for_status()
             data = response.json()
@@ -105,18 +104,20 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
             if not itens_filtrados:
                 sucessos.append(params_periodo) # Sucesso, mas sem dados novos
                 continue
-            logger.info(f"{len(itens_filtrados)} registros resgatados após filtragem inicial.")
+            log.debug(f"{len(itens_filtrados)} registros resgatados após filtragem inicial.", modulo="data_updater.py", funcao="_atualizar_dados_siconfi", total_api=len(items))
 
             tamanho_lote = 50
             registros_inseridos_total = 0
+            total_lotes = (len(itens_filtrados) // tamanho_lote) + 1
+            lotes_processados = 0
+            log.info(f"Processando {total_lotes} lote(s). Total de {len(itens_filtrados)} registro(s)", modulo="data_updater.py", funcao="_atualizar_dados_siconfi")
             for i in range(0, len(itens_filtrados), tamanho_lote):
                 lote_itens = itens_filtrados[i:i + tamanho_lote]
-                
-                logger.info(f"Processando lote {i//tamanho_lote + 1} com {len(lote_itens)} itens...")
-
+            
                 # 1. Cria um conjunto de chaves de identificação para cada lote 
                 chaves_api_lote = {_criar_chave_identificadora(item, chaves_identificadoras) for item in lote_itens}
 
+                '''
                 # --- DEBUG ETAPA 3 ---
                 print("\n--- DEBUG: ETAPA 3 (Chaves da API) ---")
                 if chaves_api_lote:
@@ -128,6 +129,7 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
                 else:
                     print("Nenhuma chave gerada para o lote da API.")
                 # --- FIM DEBUG ---
+                '''
 
                 filtros_db = []  # 2. Constrói uma consulta para buscar no banco os registros em lotes que correspondem a essas chaves.
                 for chave_tupla in chaves_api_lote:
@@ -142,6 +144,7 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
 
                 chaves_existentes = {_criar_chave_identificadora(vars(reg), chaves_identificadoras) for reg in registros_existentes}
 
+                '''
                 # --- DEBUG ETAPA 4 ---
                 print("\n--- DEBUG: ETAPA 4 (Chaves do Banco de Dados) ---")
                 if chaves_existentes:
@@ -149,27 +152,23 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
                     print(f"Exemplo de chave do Banco: {primeira_chave_db}")
                     print("Tipos de dados na chave do Banco:")
                     for i, parte in enumerate(primeira_chave_db):
-                        print(f"  - Parte {i} ({chaves_identificadoras[i]}): '{parte}' (Tipo: {type(parte)})")
+                       print(f"  - Parte {i} ({chaves_identificadoras[i]}): '{parte}' (Tipo: {type(parte)})")
                 else:
                     print("Nenhuma chave correspondente encontrada no banco de dados.")
                 # --- FIM DEBUG ---
-
-                '''registros_novos_para_inserir = [
-                    item for item in lote_itens
-                    if _criar_chave_identificadora(item, chaves_identificadoras) not in chaves_existentes
-                ]'''
+                '''
 
                 # --- DEBUG ETAPA 5 ---
-                print("\n--- DEBUG: ETAPA 5 (Comparação) ---")
+                #print("\n--- DEBUG: ETAPA 5 (Comparação) ---")
                 registros_novos_para_inserir = []
                 for item in lote_itens:
                     chave_api_item = _criar_chave_identificadora(item, chaves_identificadoras)
                     encontrado_no_db = chave_api_item in chaves_existentes
-                    print(f"Verificando chave: {chave_api_item}")
-                    print(f" -> Encontrada no DB? {encontrado_no_db}")
+                    #print(f"Verificando chave: {chave_api_item}")
+                    #print(f" -> Encontrada no DB? {encontrado_no_db}")
                     if not encontrado_no_db:
                         registros_novos_para_inserir.append(item)
-                print(f"Resultado: {len(registros_novos_para_inserir)} registros marcados como novos para inserção.")
+                # log.debug(f"Resultado: {len(registros_novos_para_inserir)} registros marcados como novos para inserção.")
                 # --- FIM DEBUG ---
 
                 # Insere os novos registros em lote.
@@ -178,14 +177,15 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
                     try:
                         db.session.bulk_insert_mappings(modelo_db, registros_novos_para_inserir)
                         db.session.commit() # Confirma a transação para este lote
-                        logger.info(f"Lote salvo! {len(registros_novos_para_inserir)} novos registros inseridos.")
+                        #log.info(f"Lote salvo! {len(registros_novos_para_inserir)} novos registros inseridos.")
+                        lotes_processados += 1
                         registros_inseridos_total += len(registros_novos_para_inserir)
                     except Exception as e_transacao:
-                        logger.error(f"Erro ao salvar lote no banco de dados: {e_transacao}")
+                        log.error(f"Erro ao salvar lote no banco de dados: {e_transacao}")
                         db.session.rollback() # Reverte a transação em caso de erro
                         raise e_transacao # Propaga o erro para o bloco principal
-                
-            logger.info(f"Importação para {info_log} concluída. Total de {registros_inseridos_total} registros inseridos.")
+                    
+            log.success(f"Lotes salvos no banco de dados para {params_periodo['no_anexo']}.", details=f'Total de Lotes armazenados: {lotes_processados}/{total_lotes}',modulo="data_updater.py", funcao="_atualizar_dados_siconfi", registros_resgatados=len(itens_filtrados),registros_inseridos=registros_inseridos_total, lotes_processados=lotes_processados, total_lotes=total_lotes)
             sucessos.append(params_periodo)
             TOTAL_INSERIDOS += registros_inseridos_total
             
@@ -198,7 +198,7 @@ def _atualizar_dados_siconfi(modelo_db, endpoint, params_base, periodo_params):
             db.session.rollback()
             falhas.append({**params_periodo, "motivo": f"Erro inesperado: {str(e)}"})
 
-    logger.info(f"Processo de atualização para endpoint '{endpoint}' concluído. Total geral de registros inseridos: {TOTAL_INSERIDOS}")
+    log.success(f"Processo de atualização para endpoint '{endpoint}' concluído.", details=f'Total geral de registros novos inseridos: {TOTAL_INSERIDOS}')
     return sucessos, falhas
 
 def atualizar_operacoes_rreo(status='now'):
@@ -240,7 +240,7 @@ def atualizar_operacoes_rreo(status='now'):
         return {"message": "Dados RREO importados com sucesso!", "sucessos": sucessos, "status": "success"}
 
     except Exception as e:
-        logger.exception("Erro geral na atualização RREO")
+        log.error("Erro geral na atualização RREO")
         return {"message": f"Erro geral: {str(e)}", "sucessos": [], "falhas": [], "status": "error"}
 
 def atualizar_operacoes_rgf(status='now'):
@@ -285,7 +285,7 @@ def atualizar_operacoes_rgf(status='now'):
         return {"message": "Dados RGF importados com sucesso!", "sucessos": sucessos, "status": "success"}
 
     except Exception as e:
-        logger.exception("Erro geral na atualização RGF")
+        log.error("Erro geral na atualização RGF")
         return {"message": f"Erro geral: {str(e)}", "sucessos": [], "falhas": [], "status": "error"}
 
 # ------------------------- Fim da Seção Siconfi -------------------------
@@ -297,7 +297,7 @@ def atualizar_operacoes_rgf(status='now'):
 
 if __name__ == "__main__":
     # Configura banco de dados
-    if not configurar_banco_dados(logger):
+    if not configurar_banco_dados(log):
         print("Falha na configuração do banco de dados.")
         exit(1)
 
@@ -310,7 +310,7 @@ if __name__ == "__main__":
         resultado = atualizar_operacoes_rreo(status='past')
         print(resultado)
     elif escolha == "2":
-        resultado = atualizar_operacoes_rgf(status='past')
+        resultado = atualizar_operacoes_rgf(status='now')
         print(resultado)
     else:
         print("Opção inválida.")

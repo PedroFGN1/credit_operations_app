@@ -41,7 +41,7 @@ EEL_SIZE = (1200, 800)
 EEL_POSITION = "center"
 
 # Configurações da aplicação
-APP_NAME = "Simulador de Operações de Crédito v2"
+APP_NAME = "Simulador de Operações de Crédito"
 APP_VERSION = "2.0.0"
 DEBUG = True
 
@@ -101,8 +101,14 @@ import logging.config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .database_models import db, Base
+from .logger import LoggerComponent
 
 def configurar_logging():
+    """Configura o sistema de logging da aplicação."""
+    logger = LoggerComponent()
+    return logger
+
+def configurar_logging_v1():
     """Configura o sistema de logging da aplicação."""
     logging.config.dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger(__name__)
