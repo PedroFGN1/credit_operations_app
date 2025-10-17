@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_, or_
 
-from .config import configurar_banco_dados, configurar_logging
+from .config import configurar_banco_dados
 from .database_models import RREO, RGF, db
 from .utils import calcular_bimestre_atual, calcula_quadrimestre_atual
 from .logger import log
@@ -297,7 +297,7 @@ def atualizar_operacoes_rgf(status='now'):
 
 if __name__ == "__main__":
     # Configura banco de dados
-    if not configurar_banco_dados(log):
+    if not configurar_banco_dados():
         print("Falha na configuração do banco de dados.")
         exit(1)
 

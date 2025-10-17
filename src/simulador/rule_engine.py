@@ -77,7 +77,7 @@ class RegraDeOuroAnoAnterior(RegraDeNegocio):
             }
         }
     
-class RegraDoDispendio115RCL(RegraDeNegocio):
+class RegraDeOuroAnoAtual(RegraDeNegocio):
     """
     Verifica a projeção da Regra de Ouro para o ano corrente.
     """
@@ -125,7 +125,7 @@ class RegraDoDispendio115RCL(RegraDeNegocio):
             }
         }
 
-class RegraDeOuroAnoAtual(RegraDeNegocio):
+class RegraDoDispendio115RCL(RegraDeNegocio):
     """
     Verifica a projeção da Regra de Ouro para o ano corrente.
     """
@@ -271,7 +271,7 @@ def analisar_operacao(ano, valor_requisitado=0.0):
 from .config import configurar_banco_dados
 
 if __name__ == "__main__":
-    if not configurar_banco_dados(log):
+    if not configurar_banco_dados():
         print("Falha na configuração do banco de dados.")
         exit(1)
 

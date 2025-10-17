@@ -1,6 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, Numeric, Date
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import Column, Integer, String, Numeric, Date
+from sqlalchemy.orm import declarative_base
 
 # Base para os modelos declarativos
 Base = declarative_base()

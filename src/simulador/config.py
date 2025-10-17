@@ -1,5 +1,5 @@
 """
-Módulo de Configuração da Aplicação
+Módulo Principal de Configuração da Aplicação
 
 Este módulo contém as configurações necessárias para a aplicação Eel,
 incluindo configurações de banco de dados e outras configurações gerais.
@@ -9,6 +9,12 @@ import os
 import sys
 import yaml
 from pathlib import Path
+import configparser
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from .database_models import db, Base
+from .logger import log
+
 
 def get_asset_path(relative_path):
     """
@@ -22,18 +28,75 @@ def get_asset_path(relative_path):
         # Estamos rodando em modo normal
         # Assumimos que config.py está em src/simulador, então subimos 2 níveis
         base_path = Path(__file__).resolve().parents[2]
-    
     return base_path / relative_path
-    
+
+# Caminho para o arquivo de configurações
+CONFIG_FILE_PATH = get_asset_path('settings.ini')
+
+class ConfigManager:
+    def __init__(self, config_path):
+        self.config_path = config_path
+        self.parser = configparser.ConfigParser()
+        self.load()
+
+    def load(self):
+        """Carrega as configurações do arquivo .ini."""
+        if not self.config_path.exists():
+            # Se o arquivo não existir, podemos criar um padrão, mas por enquanto vamos assumir que ele existe.
+            log.warning(f"AVISO: Arquivo de configuração '{self.config_path}' não encontrado.")
+            return
+        self.parser.read(self.config_path, encoding='utf-8')
+
+    def save(self):
+        """Salva as configurações atuais no arquivo .ini."""
+        with open(self.config_path, 'w', encoding='utf-8') as f:
+            self.parser.write(f)
+
+    def get_db_config(self) -> dict:
+        """Retorna a configuração do banco de dados como um dicionário."""
+        if 'database' in self.parser:
+            return dict(self.parser['database'])
+        return {}
+
+    def get_db_engine_url(self) -> str:
+        """Constrói a URL de conexão do SQLAlchemy a partir das configurações."""
+        db_cfg = self.get_db_config()
+        db_type = db_cfg.get('type', 'sqlite')
+
+        try:
+            if db_type == 'sqlite':
+                path = get_asset_path(db_cfg.get('path', 'instance/database.db'))
+                path.parent.mkdir(parents=True, exist_ok=True)
+                return f"sqlite:///{path}"
+            elif db_type == 'postgresql':
+                    return f"postgresql+psycopg2://{db_cfg['user']}:{db_cfg['password']}@{db_cfg['host']}:{db_cfg['port']}/{db_cfg['name']}"
+            
+            elif db_type == 'mysql':
+                    return f"mysql+pymysql://{db_cfg['user']}:{db_cfg['password']}@{db_cfg['host']}:{db_cfg['port']}/{db_cfg['name']}"
+        
+            raise ValueError(f"Tipo de banco de dados '{db_type}' não suportado.")
+        except KeyError as e:
+            log.critical(f"Parâmetro de configuração do banco de dados ausente no settings.ini: {e}")
+            raise
+
+    def set_db_config(self, config_dict: dict):
+        """Atualiza a seção [database] e salva o arquivo."""
+        if 'database' not in self.parser:
+            self.parser.add_section('database')
+        
+        for key, value in config_dict.items():
+            self.parser.set('database', key, str(value))
+        self.save()
+
+# Instância global do nosso gerenciador de configurações
+config_manager = ConfigManager(CONFIG_FILE_PATH)
+
 # Diretório base da aplicação
 BASE_DIR = get_asset_path('')
 
-# Configurações do banco de dados
-DATABASE_URL = f"sqlite:///{BASE_DIR}/instance/database.db"
-
 # Configurações de upload
 UPLOAD_FOLDER = BASE_DIR / "uploads"
-ALLOWED_EXTENSIONS = {'csv', 'txt', 'xlsx', 'xls'}
+ALLOWED_EXTENSIONS = {'csv', 'xlsx', 'xls'}
 
 # Configurações do Eel
 EEL_WEB_FOLDER = get_asset_path('src/web')
@@ -96,35 +159,17 @@ def carregar_modelo_yaml():
         print(f"Erro ao carregar modelo.yaml: {e}")
         return {}
 
-import logging
-import logging.config
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from .database_models import db, Base
-from .logger import LoggerComponent
-
-def configurar_logging():
-    """Configura o sistema de logging da aplicação."""
-    logger = LoggerComponent()
-    return logger
-
-def configurar_logging_v1():
-    """Configura o sistema de logging da aplicação."""
-    logging.config.dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger(__name__)
-    return logger
-
-def configurar_banco_dados(logger):
+def configurar_banco_dados():
     """Configura e inicializa o banco de dados SQLAlchemy."""
     try:
+        DATABASE_URL = config_manager.get_db_engine_url()
         engine = create_engine(DATABASE_URL, echo=False)
         Session = sessionmaker(bind=engine)
         db.session = Session()
         # Cria tabelas se não existirem
         Base.metadata.create_all(engine)
-        logger.info("Banco de dados configurado com sucesso")
+        log.success("Conexão principal com o banco de dados estabelecida com sucesso.", details=f'Caminho do banco: {DATABASE_URL}')
         return True
     except Exception as e:
-        logger.error(f"Erro ao configurar banco de dados: {e}")
+        log.critical("ERRO CRÍTICO AO CONECTAR AO BANCO DE DADOS.", details=str(e))
         return False
-

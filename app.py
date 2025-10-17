@@ -14,17 +14,21 @@ from src.simulador.data_updater import atualizar_operacoes_rreo, atualizar_opera
 from src.simulador.database_models import db, RREO
 from src.simulador.logger import log
 
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
+from sqlalchemy import text
+
 # Módulos de configuração
 from src.simulador.config import (
-    EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, APP_NAME, APP_VERSION, 
-    criar_diretorios, configurar_banco_dados
+    EEL_WEB_FOLDER, EEL_SIZE, EEL_POSITION, APP_NAME, APP_VERSION, get_asset_path, 
+    criar_diretorios, configurar_banco_dados, config_manager
 ) 
 
 # --- CONFIGURAÇÃO INICIAL DA APLICAÇÃO ---
 
 criar_diretorios()
 
-if not configurar_banco_dados(log):
+if not configurar_banco_dados():
     log.error("Falha na configuração do banco de dados. Encerrando aplicação.")
     exit(1)
 
@@ -37,6 +41,68 @@ def get_all_logs():
 @eel.expose
 def clear_logs():
     log.clear_logs()
+
+# ========== FUNÇÕES DE CONFIGURAÇÃO EXPOSTAS ==========
+
+@eel.expose
+def get_db_config():
+    """Retorna a configuração atual do banco de dados para o frontend."""
+    log.info("Frontend solicitou a configuração atual do banco de dados.", modulo="app.py")
+    return config_manager.get_db_config()
+
+@eel.expose
+def save_db_config(config_data: dict):
+    """Salva a nova configuração do banco de dados recebida do frontend."""
+    try:
+        log.info("Recebida nova configuração de banco de dados para salvar.", modulo="app.py", config=config_data)
+        config_manager.set_db_config(config_data)
+        log.success("Configuração do banco de dados salva com sucesso. É necessário reiniciar a aplicação.")
+        # É importante notar que a aplicação precisará ser reiniciada para usar a nova conexão.
+        return {'status': 'sucesso', 'mensagem': 'Configuração salva. Reinicie a aplicação para aplicá-la.'}
+    except Exception as e:
+        log.error("Falha ao salvar a configuração do banco de dados.", details=str(e))
+        return {'status': 'erro', 'mensagem': str(e)}
+
+@eel.expose
+def test_db_connection(config_data: dict):
+    """Testa uma conexão de banco de dados com as configurações fornecidas."""
+    log.info("Testando conexão com o banco de dados...", modulo="app.py")
+    try:
+        # Lógica para construir a URL de teste (similar a get_db_engine_url)
+        db_type = config_data.get('type', 'sqlite')
+        if db_type == 'sqlite':
+            test_url = f"sqlite:///{get_asset_path(config_data.get('path'))}"
+        elif db_type == 'postgresql':
+            user = config_data.get('user', '')
+            password = config_data.get('password', '')
+            host = config_data.get('host', 'localhost')
+            port = config_data.get('port', '5432')
+            name = config_data.get('name', 'postgres')
+            test_url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}"
+        elif db_type == 'mysql':
+            user = config_data.get('user', '')
+            password = config_data.get('password', '')
+            host = config_data.get('host', 'localhost')
+            port = config_data.get('port', '3306')
+            name = config_data.get('name', 'mysql')
+            test_url = f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}"
+        # lógica para outros bancos +++
+        else:
+            raise ValueError(f"Tipo de banco de dados '{db_type}' desconhecido para teste.")
+        
+        log.info(f"URL de teste construída: {test_url}", modulo="app.py")
+        engine = create_engine(test_url)
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        
+        log.success("Teste de conexão bem-sucedido.")
+        return {'status': 'sucesso', 'mensagem': 'Conexão bem-sucedida!'}
+    except OperationalError as oe:
+        log.warning("Teste de conexão falhou (OperationalError). Verifique as credenciais, host, porta e nome do banco.", details=str(oe.orig))
+        return {'status': 'erro', 'mensagem': f'Falha na conexão: Verifique as credenciais, host, porta e nome do banco.'}
+    except Exception as e:
+        log.error("Teste de conexão falhou (Exception).", details=str(e))
+        return {'status': 'erro', 'mensagem': f'Um erro inesperado ocorreu: {e}'}
 
 # ========== FUNÇÕES EXPOSTAS PARA O FRONTEND (API INTERNA) ==========
 
