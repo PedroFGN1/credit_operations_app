@@ -441,9 +441,9 @@ const DB_FIELDS = {
     ],
     mysql: [
         { id: 'host', label: 'Host:', type: 'text', placeholder: 'localhost' },
-        { id: 'port', label: 'Porta:', type: 'number', placeholder: '5432' },
+        { id: 'port', label: 'Porta:', type: 'number', placeholder: '3306' },
         { id: 'name', label: 'Nome do Banco:', type: 'text', placeholder: 'simulador_db' },
-        { id: 'user', label: 'Usuário:', type: 'text', placeholder: 'mysql' },
+        { id: 'user', label: 'Usuário:', type: 'text', placeholder: 'root' },
         { id: 'password', label: 'Senha:', type: 'password', placeholder: '******' }
     ]
 };

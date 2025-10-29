@@ -81,7 +81,7 @@ credit_operations_app/
 Para empacotar o aplicativo em um executável standalone, utilize o PyInstaller com o seguinte comando:
 
 ```bash
-   pyinstaller  --noconsole --onefile --add-data="src/web;src/web" --add-data="modelo.yaml;." --add-data="settings.ini;." --name="Operations_Credit_v2.0" app.py
+   pyinstaller  --noconsole --onefile --icon="assets/icon.ico" --add-data="src/web;src/web" --add-data="modelo.yaml;." --name="Operations_Credit_v2.0" app.py
 ```
 ## Contribuição
 

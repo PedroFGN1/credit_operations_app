@@ -30,8 +30,23 @@ def get_asset_path(relative_path):
         base_path = Path(__file__).resolve().parents[2]
     return base_path / relative_path
 
+def get_config_file_path(filename="settings.ini"):
+    if getattr(sys, 'frozen', False):
+        # Estamos rodando empacotado (exe)
+        # sys.executable é o caminho completo para o .exe
+        exe_path = Path(sys.executable)
+        # O diretório pai do .exe é onde queremos o .ini
+        config_dir = exe_path.parent
+    else:
+        # Estamos rodando como script .py
+        # __file__ é o caminho para config.py (src/simulador/config.py)
+        # Subimos 2 níveis para chegar à raiz do projeto onde está app.py
+        config_dir = Path(__file__).resolve().parents[2]
+
+    return config_dir / filename
+
 # Caminho para o arquivo de configurações
-CONFIG_FILE_PATH = get_asset_path('settings.ini')
+CONFIG_FILE_PATH = get_config_file_path()
 
 class ConfigManager:
     def __init__(self, config_path):
@@ -44,13 +59,31 @@ class ConfigManager:
         if not self.config_path.exists():
             # Se o arquivo não existir, podemos criar um padrão, mas por enquanto vamos assumir que ele existe.
             log.warning(f"AVISO: Arquivo de configuração '{self.config_path}' não encontrado.")
+            self._create_default_config()
             return
-        self.parser.read(self.config_path, encoding='utf-8')
+        else: 
+            self.parser.read(self.config_path, encoding='utf-8')
+            log.info(f"Configurações carregadas de '{self.config_path}'")
+
+    def _create_default_config(self):
+        """Define e salva as configurações padrão no parser."""
+        self.parser['database'] = {
+            'type': 'sqlite',
+            'host': 'localhost', 'port': '5432', 'name': 'simulador_db', 'user': 'postgres', 'password': '',
+            # IMPORTANTE: Caminho relativo ao executável
+            'path': 'instance/database.db' 
+        }
+        self.parser['updater'] = { 'anos_historico': '3' }
+        self.save()
 
     def save(self):
         """Salva as configurações atuais no arquivo .ini."""
-        with open(self.config_path, 'w', encoding='utf-8') as f:
-            self.parser.write(f)
+        try:
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                self.parser.write(f)
+            log.info(f"Configurações salvas em '{self.config_path}'")
+        except Exception as e:
+            log.error(f"Não foi possível salvar as configurações em {self.config_path}", details=str(e))
 
     def get_db_config(self) -> dict:
         """Retorna a configuração do banco de dados como um dicionário."""
@@ -65,7 +98,8 @@ class ConfigManager:
 
         try:
             if db_type == 'sqlite':
-                path = get_asset_path(db_cfg.get('path', 'instance/database.db'))
+                path = get_config_file_path(db_cfg.get('path', 'instance/database.db'))
+                log.info(f"Usando banco de dados SQLite em: {path}")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 return f"sqlite:///{path}"
             elif db_type == 'postgresql':

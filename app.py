@@ -6,7 +6,6 @@ backend (motor de regras, acesso a dados) e o frontend (JavaScript/Eel).
 """
 
 import eel
-from sqlalchemy import func
 
 # Módulos da nossa arquitetura
 from src.simulador.rule_engine import analisar_operacao
@@ -80,7 +79,7 @@ def test_db_connection(config_data: dict):
             name = config_data.get('name', 'postgres')
             test_url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}"
         elif db_type == 'mysql':
-            user = config_data.get('user', '')
+            user = config_data.get('user', 'root')
             password = config_data.get('password', '')
             host = config_data.get('host', 'localhost')
             port = config_data.get('port', '3306')
