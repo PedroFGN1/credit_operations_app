@@ -99,7 +99,6 @@ class ConfigManager:
         try:
             if db_type == 'sqlite':
                 path = get_config_file_path(db_cfg.get('path', 'instance/database.db'))
-                log.info(f"Usando banco de dados SQLite em: {path}")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 return f"sqlite:///{path}"
             elif db_type == 'postgresql':
@@ -139,7 +138,7 @@ EEL_POSITION = "center"
 
 # Configurações da aplicação
 APP_NAME = "Simulador de Operações de Crédito"
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.1.0"
 DEBUG = True
 
 # Criar diretórios necessários

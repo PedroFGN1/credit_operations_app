@@ -10,8 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
     configurarEventListeners();
     carregarDadosIniciais();
     initializeLogComponent();
+    initializeMonitoringComponent();
     // Garante que a seção de simulação seja exibida por padrão ao carregar
-    mostrarSecao('secao-simulacao'); 
+    mostrarSecao('secao-simulacao');
 });
 
 // --- LÓGICA DE NAVEGAÇÃO ENTRE SEÇÕES ---
@@ -60,6 +61,11 @@ function configurarEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') esconderModal();
     });
+
+    // Adiciona os listeners para o novo modal de monitoramento
+    document.getElementById('openMonitoringModalBtn').addEventListener('click', openMonitoringModal);
+    document.getElementById('closeMonitoringModalBtn').addEventListener('click', closeMonitoringModal);
+    document.getElementById('closeMonitoringModalBtn2').addEventListener('click', closeMonitoringModal);
 
     // Adiciona os novos listeners para a navegação
     document.getElementById('nav-simulacao').addEventListener('click', (e) => {
@@ -336,218 +342,73 @@ function mostrarCarregamento(mostrar, elementoId) {
 }
 
 
-
 // ======================================================================
-// LÓGICA DO COMPONENTE DE LOGS
+// LÓGICA DO COMPONENTE DE MONITORAMENTO (Atualizada)
 // ======================================================================
+let monitoringInterval = null;
 
-let logHistory = [];
-let currentLogLevelFilter = 'all';
-
-function initializeLogComponent() {
-    console.log("Inicializando componente de logs...");
-    // Adiciona os listeners aos botões e filtro
-    document.getElementById('logFilter').addEventListener('change', (e) => {
-        currentLogLevelFilter = e.target.value;
-        filterLogs();
-    });
-    document.getElementById('clearLogsBtn').addEventListener('click', () => eel.clear_logs());
-
-    // Pede ao backend os logs antigos caso a página seja recarregada
-    eel.get_all_logs()((logs) => {
-        logHistory = logs;
-        filterLogs();
-    });
+function initializeMonitoringComponent() {
+    // O intervalo agora verifica se o modal está aberto
+    monitoringInterval = setInterval(() => {
+        const modal = document.getElementById('monitoringModal');
+        // Atualiza apenas se o modal estiver visível (não contiver 'hidden')
+        if (modal && !modal.classList.contains('hidden')) {
+            updateMonitoringData();
+        }
+    }, 5000); // 5 segundos
 }
 
-// Exposto ao Python: recebe uma nova mensagem de log
-eel.expose(add_log_message);
-function add_log_message(logEntry) {
-    logHistory.push(logEntry);
-    if (currentLogLevelFilter === 'all' || currentLogLevelFilter === logEntry.level) {
-        displayLogEntry(logEntry);
+async function updateMonitoringData() {
+    // Esta é a função que busca e renderiza os dados
+    try {
+        const status = await eel.get_system_status_py()();
+        if (status) {
+            updateMonitoringUI(status);
+        }
+    } catch (e) {
+        console.error("Erro ao buscar status do sistema:", e);
+        // Opcional: mostrar um erro dentro do modal
     }
 }
 
-// Exposto ao Python: limpa o terminal no frontend
-eel.expose(clear_logs_frontend);
-function clear_logs_frontend() {
-    logHistory = [];
-    document.getElementById('logTerminal').innerHTML = `
-        <div class="log-welcome flex items-center justify-center h-full">
-            <p class="text-gray-400">Terminal limpo. Aguardando novas mensagens.</p>
-        </div>
-    `;
-}
+function updateMonitoringUI(status) {
+    if (!status) return;
 
-// Função interna para renderizar um log na tela
-function displayLogEntry(logEntry) {
-    const logTerminal = document.getElementById('logTerminal');
-    const welcome = logTerminal.querySelector('.log-welcome');
-    if (welcome) welcome.remove();
-
-    const logElement = document.createElement('div');
-    logElement.className = 'log-entry mb-2 flex';
-    // Usando cores do Tailwind para consistência
-    const levelColorClass = {
-        'DEBUG': 'text-gray-500', 'INFO': 'text-blue-400', 'SUCCESS': 'text-green-400',
-        'WARNING': 'text-yellow-400', 'ERROR': 'text-red-400', 'CRITICAL': 'text-purple-400'
-    };
-
-    logElement.innerHTML = `
-        <span class="timestamp text-gray-600 mr-4">${logEntry.timestamp}</span>
-        <span class="level font-bold w-20 ${levelColorClass[logEntry.level] || 'text-gray-400'}">${logEntry.level}</span>
-        <div class="message flex-1">
-            <p>${logEntry.message}</p>
-            ${logEntry.details ? `<p class="text-gray-500 text-xs mt-1">${logEntry.details}</p>` : ''}
-        </div>
-    `;
-    logTerminal.appendChild(logElement);
-    logTerminal.scrollTop = logTerminal.scrollHeight; // Auto-scroll
-}
-
-// Função interna para (re)aplicar o filtro de logs
-function filterLogs() {
-    const logTerminal = document.getElementById('logTerminal');
-    logTerminal.innerHTML = ''; 
+    // Atualiza o Card do Banco de Dados
+    const dbIcon = document.getElementById('status-db-icon');
+    const dbText = document.getElementById('status-db-text');
+    const dbMessage = document.getElementById('status-db-message');
     
-    const filtered = currentLogLevelFilter === 'all'
-        ? logHistory
-        : logHistory.filter(log => log.level === currentLogLevelFilter);
-
-    if (filtered.length === 0) {
-        logTerminal.innerHTML = `<div class="log-welcome flex items-center justify-center h-full"><p class="text-gray-400">Nenhum log para o filtro '${currentLogLevelFilter}'.</p></div>`;
+    if (status.database.status === 'Online') {
+        dbIcon.className = 'w-4 h-4 rounded-full bg-green-500 mr-3';
+        dbText.textContent = 'Online';
+        dbText.className = 'text-green-600 font-semibold';
     } else {
-        filtered.forEach(displayLogEntry);
+        dbIcon.className = 'w-4 h-4 rounded-full bg-red-500 mr-3';
+        dbText.textContent = status.database.status; // 'Offline' ou 'Erro'
+        dbText.className = 'text-red-600 font-semibold';
     }
-}
+    dbMessage.textContent = status.database.mensagem;
 
-
-
-// ======================================================================
-// LÓGICA DO COMPONENTE DE CONFIGURAÇÃO DO BANCO DE DADOS
-// ======================================================================
-
-const DB_FIELDS = {
-    sqlite: [
-        { id: 'path', label: 'Caminho do Arquivo:', type: 'text', placeholder: 'database/simulador.db' }
-    ],
-    postgresql: [
-        { id: 'host', label: 'Host:', type: 'text', placeholder: 'localhost' },
-        { id: 'port', label: 'Porta:', type: 'number', placeholder: '5432' },
-        { id: 'name', label: 'Nome do Banco:', type: 'text', placeholder: 'simulador_db' },
-        { id: 'user', label: 'Usuário:', type: 'text', placeholder: 'postgres' },
-        { id: 'password', label: 'Senha:', type: 'password', placeholder: '******' }
-    ],
-    mysql: [
-        { id: 'host', label: 'Host:', type: 'text', placeholder: 'localhost' },
-        { id: 'port', label: 'Porta:', type: 'number', placeholder: '3306' },
-        { id: 'name', label: 'Nome do Banco:', type: 'text', placeholder: 'simulador_db' },
-        { id: 'user', label: 'Usuário:', type: 'text', placeholder: 'root' },
-        { id: 'password', label: 'Senha:', type: 'password', placeholder: '******' }
-    ]
-};
-
-function initializeDbConfigComponent() {
-    // Eventos para abrir e fechar o modal
-    document.getElementById('openDbConfigModalBtn').addEventListener('click', openDbConfigModal);
-    document.getElementById('closeDbConfigModalBtn').addEventListener('click', closeDbConfigModal);
-
-    // Eventos dos botões de ação do modal
-    document.getElementById('testDbConnectionBtn').addEventListener('click', testDbConnection);
-    document.getElementById('saveDbConfigBtn').addEventListener('click', saveDbConfig);
+    // Atualiza o Card de CPU
+    document.getElementById('status-cpu-percent').textContent = status.resources.cpu_percent;
     
-    // Evento para mudar os campos dinamicamente
-    document.getElementById('dbType').addEventListener('change', renderDbConfigFields);
+    // Atualiza o Card de Memória
+    document.getElementById('status-memory-mb').textContent = status.resources.memory_mb;
 }
 
-async function openDbConfigModal() {
-    const modal = document.getElementById('dbConfigModal');
+// Funções para controlar o modal de monitoramento
+function openMonitoringModal() {
+    const modal = document.getElementById('monitoringModal');
     modal.style.display = 'flex'; // Usamos flex para centralizar
+    modal.classList.remove('hidden');
     
-    try {
-        const config = await eel.get_db_config()();
-        document.getElementById('dbType').value = config.type || 'sqlite';
-        // Renderiza os campos com os valores atuais
-        renderDbConfigFields(config); 
-    } catch (e) {
-        mostrarMensagem('Erro ao carregar configuração do banco de dados.', 'error');
-    }
+    // Busca os dados imediatamente ao abrir o modal
+    updateMonitoringData();
 }
 
-function closeDbConfigModal() {
-    const modal = document.getElementById('dbConfigModal');
+function closeMonitoringModal() {
+    const modal = document.getElementById('monitoringModal');
     modal.style.display = 'none';
-    document.getElementById('connectionStatus').textContent = ''; // Limpa status
-}
-
-function renderDbConfigFields(currentConfig = {}) {
-    const dbType = document.getElementById('dbType').value;
-    const fieldsContainer = document.getElementById('dbConfigFields');
-    fieldsContainer.innerHTML = ''; // Limpa campos antigos
-
-    const fields = DB_FIELDS[dbType];
-    if (fields) {
-        fields.forEach(field => {
-            const value = currentConfig[field.id] || '';
-            const formGroup = document.createElement('div');
-            formGroup.innerHTML = `
-                <label for="db_${field.id}" class="block text-sm font-medium text-gray-700">${field.label}</label>
-                <input type="${field.type}" id="db_${field.id}" value="${value}"
-                       class="mt-1 block w-full p-2 rounded-md border-gray-300 shadow-sm"
-                       placeholder="${field.placeholder}">
-            `;
-            fieldsContainer.appendChild(formGroup);
-        });
-    }
-}
-
-function getDbConfigFromModal() {
-    const dbType = document.getElementById('dbType').value;
-    const configData = { type: dbType };
-    const fields = DB_FIELDS[dbType];
-
-    if (fields) {
-        fields.forEach(field => {
-            configData[field.id] = document.getElementById(`db_${field.id}`).value;
-        });
-    }
-    return configData;
-}
-
-async function testDbConnection() {
-    const configData = getDbConfigFromModal();
-    const statusSpan = document.getElementById('connectionStatus');
-    statusSpan.textContent = 'Testando...';
-    statusSpan.className = 'text-gray-500';
-
-    try {
-        const result = await eel.test_db_connection(configData)();
-        if (result.status === 'sucesso') {
-            statusSpan.textContent = result.mensagem;
-            statusSpan.className = 'text-green-600 font-semibold';
-        } else {
-            statusSpan.textContent = 'Falha: ' + result.mensagem;
-            statusSpan.className = 'text-red-600 font-semibold';
-        }
-    } catch (e) {
-        statusSpan.textContent = 'Erro ao comunicar com o backend.';
-        statusSpan.className = 'text-red-600 font-semibold';
-    }
-}
-
-async function saveDbConfig() {
-    const configData = getDbConfigFromModal();
-    
-    try {
-        const result = await eel.save_db_config(configData)();
-        if (result.status === 'sucesso') {
-            mostrarMensagem(result.mensagem, 'success');
-            closeDbConfigModal();
-        } else {
-            mostrarMensagem('Erro ao salvar: ' + result.mensagem, 'error');
-        }
-    } catch (e) {
-        mostrarMensagem('Erro grave ao comunicar com o backend para salvar.', 'error');
-    }
+    modal.classList.add('hidden');
 }

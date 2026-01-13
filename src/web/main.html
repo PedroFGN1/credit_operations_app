@@ -132,15 +132,68 @@
         <section class="bg-white mt-8 rounded-xl border shadow-sm hidden" id="secao-configuracoes">
             <div class="container px-6 py-10 mx-auto">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-cog mr-2"> </i>Configurações do Sistema</h2>
-                <div class="p-6 border rounded-lg">
+                <div class="p-6 mb-4 border rounded-lg">
                     <h3 class="text-xl font-semibold text-gray-700">Banco de Dados</h3>
                     <p class="text-gray-500 mt-2 mb-4">Gerencie as informações de conexão com o banco de dados da aplicação.</p>
                     <button id="openDbConfigModalBtn" class="px-5 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700">
                         Configurar Conexão
                     </button>
                 </div>
+                <div class="p-6 border rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold text-gray-700">Status do Sistema</h3>
+                    <p class="text-gray-500 mt-2 mb-4">Verifique o status do banco de dados e o uso de recursos.</p>
+                    <button id="openMonitoringModalBtn" class="px-5 py-2 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700">
+                        Verificar Status
+                    </button>
                 </div>
+            </div>
         </section>
+
+        <div id="monitoringModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 items-center justify-center" style="display: none;">
+            <div class="relative mx-auto p-5 border w-11/12 md:max-w-3xl shadow-lg rounded-md bg-white">
+                <div class="flex justify-between items-center pb-3 border-b">
+                    <h3 class="text-lg font-bold text-gray-900">Monitoramento do Sistema</h3>
+                    <button id="closeMonitoringModalBtn" class="text-gray-400 bg-transparent hover:bg-gray-200 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 rounded-lg p-6 shadow">
+                            <h3 class="text-lg font-semibold text-gray-700">Banco de Dados</h3>
+                            <div class="flex items-center mt-4">
+                                <span id="status-db-icon" class="w-4 h-4 rounded-full bg-gray-400 mr-3"></span>
+                                <span id="status-db-text" class="text-gray-600 font-medium">Verificando...</span>
+                            </div>
+                            <p id="status-db-message" class="text-sm text-gray-500 mt-2 h-10"></p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-6 shadow">
+                            <h3 class="text-lg font-semibold text-gray-700">Uso de CPU</h3>
+                            <div class="flex items-baseline mt-4">
+                                <span id="status-cpu-percent" class="text-4xl font-bold text-blue-600">0.0</span>
+                                <span class="text-xl font-medium text-gray-500 ml-1">%</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-lg p-6 shadow">
+                            <h3 class="text-lg font-semibold text-gray-700">Uso de Memória</h3>
+                            <div class="flex items-baseline mt-4">
+                                <span id="status-memory-mb" class="text-4xl font-bold text-blue-600">0.0</span>
+                                <span class="text-xl font-medium text-gray-500 ml-1">MB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="flex justify-end pt-3 mt-4 border-t">
+                    <button id="closeMonitoringModalBtn2" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
 
     </div>
     
@@ -228,6 +281,9 @@
         </div>
     </footer>
 
+    <script src="js/sys-status.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/logs.js"></script>
     <script src="js/eel-main.js"></script>
 </body>
 </html>

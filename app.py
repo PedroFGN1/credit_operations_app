@@ -12,6 +12,7 @@ from src.simulador.rule_engine import analisar_operacao
 from src.simulador.data_updater import atualizar_operacoes_rreo, atualizar_operacoes_rgf
 from src.simulador.database_models import db, RREO
 from src.simulador.logger import log
+from src.simulador.monitoring import get_system_status
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
@@ -102,6 +103,17 @@ def test_db_connection(config_data: dict):
     except Exception as e:
         log.error("Teste de conexão falhou (Exception).", details=str(e))
         return {'status': 'erro', 'mensagem': f'Um erro inesperado ocorreu: {e}'}
+
+# ========== FUNÇÃO DE MONITORAMENTO EXPOSTA ==========
+
+@eel.expose
+def get_system_status_py():
+    """
+    Retorna um snapshot do status do sistema (BD, Recursos) para o frontend.
+    """
+    # Não precisamos logar aqui, pois a chamada será muito frequente (a cada X segundos)
+    # Apenas logamos erros dentro do próprio módulo de monitoring.
+    return get_system_status()
 
 # ========== FUNÇÕES EXPOSTAS PARA O FRONTEND (API INTERNA) ==========
 
